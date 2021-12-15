@@ -12,9 +12,9 @@ As of macOS 12.0.1 & Xcode 13.1, with the standard shipped `List` View it is pos
 
 - A hierarchical tree `List` but with unmovable items.
 
-**But not both** at the same time, because  `.onMove` is not available when rendering trees.
+**But not both**.
 
-On macOS, this type of tree view is a convenient and widely used UI paradigm e.g. Finder's View -> 'as List' view. Consequently, the its absence from SwiftUI limits, at least in the short-term, SwiftUI's utility for developing macOS applications.
+On macOS, this type of tree view is a convenient and widely used UI paradigm e.g. Finder's View -> 'as List' view. Consequently, its absence from SwiftUI limits, at least in the short-term, SwiftUI's utility for developing macOS applications.
 
 This project demonstrates one approach to working around this limitation using the existing SwiftUI components until (hopefully) Apple adds the missing "movable items in tree views" functionality to the built-in `List` component. 
 
@@ -22,17 +22,17 @@ This project demonstrates one approach to working around this limitation using t
 
 The project's been built using Xcode 13.1 and run/hand tested on macOS 12.0.1. 
 
-*Aside: To the best of knowledge, there is nothing in the code that means it should not work with earlier versions. But it has not been tested on those so no, or rather, **even less guarantees than normal** *
+*Aside: To the best of knowledge, there is nothing in the code that means it should not work with earlier versions. But it has not been tested on those*
 
 Testing - There are no automated tests. Just build and run the app to see what it does.
 
 *Aside: Really should be ... really should have used test driven development. Hindsight's wonderful 😕*
 
-The app mocks the UI of a simple mail app. When its run it should load some testing data and then allows the user to:
+The app mocks the UI of a simple mail app. When it is run it should load some testing data and then allow the user to:
 - Drag and drop re-arrange selections of Folders and mock Mail items anywhere within the tree.
 - Mark the mock Mail items as read.
 
-And that's it; there is nothing to create new mail or folder items, convert items backward and forwards between Folder and Mail types, change sorting order, allow items to be in multiple parent folders etc. More details on these omissions in the Missing section below. 
+And that's it; there is nothing to create new mail or folder items, convert items backward and forwards between Folder and Mail types, change sorting order, allow items to be in multiple parent folders etc. In its current form these ommissions mean that the demo is just a starting point and this approach would want further work in most cases to make it suitable for a production application.
 
 ![App running](appScreenshot.png "picture of running demo app")
 
@@ -45,14 +45,14 @@ The aim of the app is to demonstrate:
 
 ### Models
 
-	               AppModel.items
-	                         ^
-                             |
-                             V	
-	      DisplayItem ----> Item - Title
-    	     |- tree depth	   |-- priority
-	         |- marker	       |------> parent item
-	                           |------> child items 
+	            AppModel -- items
+				 |
+				 V	
+	      DisplayItem ----> item 
+		|-- tree depth	 |-- title 
+		|-- marker	 |-- priority
+				 |------> parent item
+				 |------> child items 
 
 
 The app makes use of the following `ObservableObject` model classes.
@@ -69,15 +69,21 @@ The app makes use of the following `ObservableObject` model classes.
 ### Key data flow locations
 
 1. `AppRoot` instantiates an `AppModel` instance as `@StateObject` and that loads the test `Items`.
+	
 2. `ContentView`
-	3. Recurses and flattens the list of `Items` from the `AppModel` to derive a flat array of `DisplayItems`. It does this by adding UI formatting and drag 'n' drop control information to the list of `Items` from the AppModel.
-	4. It then renders the flat `DisplayItems` using their control information to create a flat movable item List:
-		5. That looks like a tree structure.
-		6. But that has enough additional information to enable distinguishing between parent from child drop locations.
-		7. To enable rebuilding the `AppModel`'s `Item` list from the any resultant moved items in the list.
+
+	1. Recurses and flattens the list of `Items` from the `AppModel` to derive a flat array of `DisplayItems`. It does this by adding UI formatting and drag 'n' drop control information to the list of `Items` from the AppModel.
+	2. It then renders the flat `DisplayItems` using their control information to create a flat movable item List:
+
+		1. That looks like a tree structure.
+		1. But that has enough additional information to enable distinguishing between parent from child drop locations.
+		1. To enable rebuilding the `AppModel`'s `Item` list from the any resultant moved items in the list.
+
 	4. When rows are dragged, it uses `List`'s flat list `onMove` handler to update:
-		5. Parent-child relationships.
-		6. Sibling priorities.
+
+		1. Parent-child relationships.
+		1. Sibling priorities.
+		
 	7. And then back propagate the changes to the `AppModel`'s `Item` list which it turn triggers a re-rendering of the updated `ContentView`.**‌**
 
 ### Sorting
