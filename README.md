@@ -103,8 +103,9 @@ As a temporary workaround this implementation is limited in what it can do compa
 Standout 'standard'ish' functional omissions from this implementation that might need addressing before it is a useful include:
 
 1. Keyboard navigation.
-	2. Item selection by typed search , i.e. typing a few letters doesn't jump to highlight sequentially items whose display text march.
-	3. Item movement, i.e. cmd+C followed by cmd+alt+v to paste to new location.
+
+	1. Item selection by typed search , i.e. typing a few letters doesn't jump to highlight sequentially items whose display text march.
+	1. Item movement, i.e. cmd+C followed by cmd+alt+v to paste to new location.
 2. OutLineGroup disclosure, i.e. whole tree is visible, no option to roll up and hide sub-trees.
 3. Sorting is hard coded on Item priority, no options for sorting alphabetically etc.
 
