@@ -36,19 +36,17 @@ struct FolderRow: View {
                     Spacer()
                 }
                 .onDrop(of: [.text], isTargeted: $isDropTgt, perform: onDropHdlr)
-//                .onDrag({
-//                    let msg = draggingSelection.map({ $0.uuidString }).joined(separator: ",")
-//                    return NSItemProvider(object: msg as NSString)
-//                }, preview: {
-//                    List(draggingSelectionItems) { item in
-//                        Row(item: item, selection: .constant([]))
-//                    }
-//                    .background(Color.blue)
-//                })
-                .onDrag {
+                .onDrag( {
                     let msg = draggingSelection.map({ $0.uuidString }).joined(separator: ",")
                     return NSItemProvider(object: msg as NSString)
-                }
+                }, preview: {
+                    if folderItem.parent == nil {
+                        Image(systemName: "nosign")
+                            .font(.largeTitle)
+                    } else {
+                        Text("Valid to drag")
+                    }
+                })
                 .onChange(of: isDropTgt) { newValue in
                     if newValue == true {
                         withAnimation {
