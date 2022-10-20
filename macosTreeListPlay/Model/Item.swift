@@ -1,54 +1,104 @@
 //
-//  Item.swift
-//  macosTreeListPlay
+//  File.swift
+//  TreeViewPlay
 //
-//  Created by Jonathan Hume on 19/11/2021.
+//  Created by Jonathan Hume on 16/10/2022.
 //
 
 import Foundation
-import os
-import SwiftUI
 
 class Item: ObservableObject, Identifiable, Equatable {
     static func == (lhs: Item, rhs: Item) -> Bool {
-        lhs.id == rhs.id
+        lhs.uuid == rhs.uuid
     }
 
-    let id: UUID = UUID()
-    
-    @Published var isParent: Bool
-    @Published var title: String
-    @Published var children: Array<Item>?
+    var uuid: UUID = UUID()
+    let isFolder: Bool
+    let name: String
+
+    @Published var children: [Item]?
     @Published var parent: Item?
-    @Published var complete: Bool
-    @Published var priority: Date
-    
-    var ancestors: Array<Item> {
-        self.getAncestors()
-    }
+    @Published var read: Bool
 
-    init(_ title: String, priority: Date, isParent: Bool = false, movable: Bool = true, children: [Item]? = nil, complete: Bool = false) {
-        self.title = title
-        self.isParent = isParent
+    init(_ name: String, isFolder: Bool = false, children: [Item]? = nil, read: Bool = false) {
+        self.name = name
+        self.isFolder = isFolder
         self.children = children
-        self.complete = complete
-        self.priority = priority
+        self.read = read
 
-        self.children?.forEach({ child in
-            child.parent = self
+        self.children?.forEach({ item in
+            item.parent = self
         })
     }
 
-    private func getAncestors() -> Array<Item> {
-        if let parent = self.parent {
-            return [parent] + parent.getAncestors()
+    func adopt(child childItem: Item) {
+        // If child has existing parent then remove it
+        if let childsExistingParent = childItem.parent {
+            if let remainingKids = childsExistingParent.children?.filter({ $0 != childItem }) {
+                if remainingKids.count == 0 {
+                    childsExistingParent.children = nil
+                } else {
+                    childsExistingParent.children = remainingKids
+                }
+                childsExistingParent.objectWillChange.send()
+            }
+        }
+        children = (children ?? []) + [childItem]
+        childItem.parent = self
+    }
+
+    static func findDescendant(with uuid: UUID?, inTreesWithRoots items: [Item]) -> Item? {
+        guard let uuid = uuid else { return nil }
+
+        return items.reduce(nil) { previouslyFoundItem, item in
+
+            // Only find the first value & then don't repeat (& accidentally overwrite)
+            guard previouslyFoundItem == nil else { return previouslyFoundItem }
+
+            if item.uuid == uuid {
+                return item
+            }
+
+            guard let children = item.children else {
+                return nil
+            }
+
+            return findDescendant(with: uuid, inTreesWithRoots: children)
+        }
+    }
+
+    func isDescendant(ofAnyOf possibleParents: Array<Item>) -> Bool {
+        let found = possibleParents.first(where: { self.isDescendant(of: $0) })
+
+        return found == nil ? false : true
+    }
+
+    func isDescendant(of possibleParent: Item) -> Bool {
+        Self.isDescendant(item: self, of: possibleParent)
+    }
+
+    static func isDescendant(item: Item, of possibleParent: Item) -> Bool {
+        guard let parentChildren = possibleParent.children else {
+            return false
+        }
+
+        if findDescendant(with: item.uuid, inTreesWithRoots: parentChildren) == nil {
+            return false
+        } else {
+            return true
+        }
+    }
+
+    static func findAncestors(for item: Item, backTo possibleAncestor: Item?) -> Array<Item> {
+        if let parent = item.parent {
+            if let possibleAncestor = possibleAncestor, parent == possibleAncestor {
+                return [parent]
+            } else {
+                return [parent] + findAncestors(for: parent, backTo: possibleAncestor)
+            }
+
         } else {
             return []
         }
     }
 }
-
-fileprivate let log = Logger(
-    subsystem: Bundle.main.bundleIdentifier!,
-    category: #file.components(separatedBy: "/").last ?? ""
-)

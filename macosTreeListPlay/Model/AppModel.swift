@@ -1,126 +1,84 @@
 //
 //  File.swift
-//  macosTreeListPlay
+//  TreeViewPlay
 //
-//  Created by Jonathan Hume on 19/11/2021.
+//  Created by Jonathan Hume on 16/10/2022.
 //
 
-import Foundation
-import os
+import SwiftUI
 
 class AppModel: ObservableObject {
-    @Published var items: Array<Item> = []
+    
 
-    static let DELTA: TimeInterval = TimeInterval(31536000.0) /// Default time interval to use when open ended priority needed + yr )plenty of space
+    init(items: [Item]) {
+        self.items = items
+    }
 
-    init(addTestData: Bool = false) {
-        if addTestData {
-            self.addTestData()
+    @Published var items: [Item]
+
+    var unreadCount: Int {
+        func unreadInFolder(_ array: [Item]) -> Int {
+            return array.reduce(0) { acc, value in
+                acc + (value.isFolder ? unreadInFolder(value.children ?? []) : (value.read ? 0 : 1))
+            }
+        }
+
+        return unreadInFolder(items)
+    }
+
+    
+    func itemFind(uuid: UUID) -> Item? {
+        Item.findDescendant(with: uuid, inTreesWithRoots: items)
+    }
+
+    func itemsFind(uuids: Set<UUID>) -> Array<Item> {
+        uuids.compactMap { uuid in
+            itemFind(uuid: uuid)
+        }
+    }
+
+    func itemsMoveIsValid(for  possibleMovers: Array<Item>, into tgtFolder: Item) -> Bool {
+        // Invalid to move any folder into itself
+        for i in possibleMovers.indices {
+            // Invalid to move to self to self
+            if possibleMovers[i].uuid == tgtFolder.uuid { return false }
+            
+            // Invalid to move root folders
+            if possibleMovers[i].parent == nil { return false }
+        }
+        return true
+    }
+    
+    func itemsMove(_ possibleMovers: Array<UUID>, into tgtFolder: Item) {
+        /// Remove any items not in the system
+        let possibleMoversExtant: Array<Item> = itemsFind(uuids: Set(possibleMovers))
+        
+        guard itemsMoveIsValid(for: possibleMoversExtant, into: tgtFolder) else {
+            return
+        }
+        
+
+        // Remove any items that already have this folder as their parent.
+        let notExistingChild = possibleMoversExtant.filter({
+            if let parentId = $0.parent?.uuid, parentId == tgtFolder.uuid {
+                return false
+            } else {
+                return true
+            }
+        })
+
+        // Remove any in the selection that are descendents of other items in the selection i.e. only need to reparent the
+        let notMovedByOthers = notExistingChild.filter { item in
+            item.isDescendant(ofAnyOf: notExistingChild) != true
+        }
+
+        DispatchQueue.main.async {
+            withAnimation {
+                notMovedByOthers.forEach { i in
+                    tgtFolder.adopt(child: i)
+                }
+                self.objectWillChange.send()
+            }
         }
     }
 }
-
-extension AppModel {
-    func addTestData() {
-        func postInc() -> Date {
-            let t = d
-            d = d + Self.DELTA
-            let f = D + t
-            // log.debug("postInc f = \(f)")
-            return f
-        }
-
-        let D = Date()
-        var d = Self.DELTA
-
-        /// Simplest test data, assign to items to use
-        _ = [
-            Item("Blah 1", priority: postInc()),
-            Item("Blah 2", priority: postInc()),
-            Item("Blah 3", priority: postInc()),
-            Item("Blah 4", priority: postInc()),
-        ]
-
-        /// Slight more complicated test data
-        _ = [
-            Item("Bob 1", priority: postInc()),
-            Item("Bob 2", priority: postInc()),
-            Item(
-                "Inbox",
-                priority: postInc(),
-                isParent: true,
-                movable: false,
-                children: [
-                    Item("Blah Blah blah", priority: postInc()),
-                    Item("Friends",
-                         priority: postInc(),
-                         isParent: true,
-                         children: [
-                             Item("Foo 1",
-                                  priority: postInc()
-                             ),
-                             Item("Foo 2", priority: postInc()),
-                         ]
-                    ),
-                ]
-            ),
-            Item("Blah 2", priority: postInc()),
-            Item("Blah 3", priority: postInc()),
-        ]
-
-        /// Most complicated test data
-        items = [
-            Item(
-                "Inbox",
-                priority: Date(),
-                isParent: true,
-                movable: false,
-                children: [
-                    Item("Friends",
-                         priority: Date(),
-                         isParent: true,
-                         children: [
-                             Item("Birthday party",
-                                  priority: Date(),
-                                  isParent: true,
-                                  children: [
-                                      Item("Blah 1", priority: Date()),
-                                      Item("Blah 2", priority: Date()),
-                                  ]
-                             ),
-                             Item("Re: Birthday party", priority: Date()),
-                         ]),
-                    Item("Work",
-                         priority: Date(),
-                         isParent: true,
-                         children: [
-                             Item("Next meeting", priority: Date()),
-                             Item("Team building", priority: Date()),
-                         ]),
-                    Item("Holidays!", priority: Date()),
-                    Item("Report needed", priority: Date()),
-                ]
-            ),
-            Item(
-                "Spam",
-                priority: Date(),
-                isParent: true,
-                movable: false,
-                children: [
-                    Item("[SPAM] Open now!", priority: Date()),
-                    Item("[SPAM] Limited time offer", priority: Date()),
-                ]
-            ),
-            Item("Trash",
-                 priority: Date(),
-                 isParent: true,
-                 movable: false,
-                 children: []),
-        ]
-    }
-}
-
-fileprivate let log = Logger(
-    subsystem: Bundle.main.bundleIdentifier!,
-    category: #file.components(separatedBy: "/").last ?? ""
-)
