@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  TreeViewPlay
+//  AppModel.swift
+//  macosTreeListPlayApp
 //
 //  Created by Jonathan Hume on 16/10/2022.
 //

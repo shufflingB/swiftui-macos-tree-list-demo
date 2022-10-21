@@ -1,18 +1,16 @@
 //
 //  ContentView.swift
-//  TreeViewPlay
+//  macosTreeListPlay
 //
 //  Created by Jonathan Hume on 16/10/2022.
 //
 
 import SwiftUI
-
-typealias Selection = Set<UUID>
-
-// Not good
+// Not great ...
 // 1) Drag has to be on the actual item, can't just grab the row.
 // 2) Doesn't appear very macOS native
 
+typealias Selection = Set<UUID>
 typealias AutoExpandedTracker = LastInFirstOut<Item>
 
 struct ContentView: View {
@@ -21,16 +19,14 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Text("Unread Messages: \(appModel.unreadCount)")
-
-            HStack {
+            NavigationSplitView(sidebar: {
                 List(selection: $selectionIds) {
                     ForEach(appModel.items) { item in
                         Row(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
                     }
                 }
-
                 .listStyle(.sidebar)
-
+            }, detail: {
                 VStack {
                     if selectionIds.count == 0 {
                         Text("Select one or more items")
@@ -43,16 +39,13 @@ struct ContentView: View {
                         }
                     }
                 }
-
-                .frame(minWidth: 300, maxHeight: 300)
                 .padding(10)
-            }
+            })
         }
-
         .environmentObject(aet)
     }
 
-    @State private var selectionIds = Selection()  // Stores what is currently selected
+    @State private var selectionIds = Selection() // Stores what is currently selected
     @State private var draggingIds = Selection() // Stores what is being dragged
     @StateObject private var aet = AutoExpandedTracker() // One per-window
 

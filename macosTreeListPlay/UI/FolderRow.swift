@@ -1,6 +1,6 @@
 //
 //  FolderRow.swift
-//  TreeViewPlay
+//  macosTreeListPlay
 //
 //  Created by Jonathan Hume on 17/10/2022.
 //
@@ -36,32 +36,38 @@ struct FolderRow: View {
                     Text(folderItem.name)
                     Spacer()
                 }
+
                 .onDrop(of: [.text], delegate: self)
                 .onDrag({
                     /// To make dragging work we have to return and NSItemProvider. However, what's actually being dragged is not actually being communicated via the
                     /// that mechanism. Instead it is done through setting the`draggingIds` variable.
                     ///
-                    /// Gone down this route back channel route  (rather than the alternative of either creating our own UTType or enconding into a string, as discussed in places such as
-                    /// https://www.waldo.com/blog/modern-swiftui-drag-and-drop-tutorial) because:
+                    /// Gone down this back channel route  (rather than the alternative of either creating our own UTType or enconding into a string, as discussed
+                    /// in places such as https://www.waldo.com/blog/modern-swiftui-drag-and-drop-tutorial) and with example code illustration end of this file) because:
                     ///
-                    /// 1)  The app has no need to drag the Items into or out of it.
-                    /// 2) Going down the full on route  means that having to employ  an onerous, slow decoding on drop process to verify what arrives at the drop targets.
+                    /// 1)  The app has no need to provide functionallity for drag the Items into or out of it.
+                    /// 2) The  full on route means having to employ  an onerous, slow decoding on drop process to verify what arrives at the drop targets.
                     ///  (see example of a decoding  the end of this file)
-                    /// 3) Even when its onerous, the ability to verify the sanity of what is being dragged is limited due having async loading of the dragged Items
+                    /// 3) Even when its onerous, the ability to verify the sanity of what is being dragged is limited due to having async loading of the dragged Items i.e. it
+                    /// uses a completion handler, which make very unweildy to provide a visual (or otherwise) indication that. The most obvious instance of which being in this
+                    /// instance the difficulty of providng feedback that folder's can't be dropped onto themselves (the receiver needs to know what's been dragged in order to
+                    /// check it against the target, but the receiver does not know what's been dragged until it async loads the object. A works around this in their apps by allowing
+                    /// the drop, but then triggering an annimated response that indicates what's happened, e.g. no movement with Finder,
                     draggingIds = draggingSelection
 
                     /// Can use any string here we like, just need to provide something for NSItemProvider to satisfy D&D requirements.
                     return NSItemProvider(object: "Message from \(folderItem.name)" as NSString)
-                }, preview: {
-                    if folderItem.parent == nil {
-                        Image(systemName: "nosign")
-                            .font(.largeTitle)
-                            
-                    } else {
-                        Text("Valid to drag")
-                    }
-                        
-                })
+                }) // , preview: {
+//                    if folderItem.parent == nil {
+//                        Image(systemName: "nosign")
+//                            .font(.largeTitle)
+//
+//                    } else {
+//                        Text("Dragging \(draggingIds.count) items").font(.largeTitle)
+//                    }
+//
+//                })
+
                 .onChange(of: isDropTgt) { newValue in
                     if newValue == true {
                         withAnimation {
@@ -139,6 +145,12 @@ struct FolderRow: View {
             ? [folderItem.uuid]
             : selectionIds
     }
+
+    private var draggingSelectionItems: Array<Item> {
+        draggingSelection.compactMap { uuid in
+            appModel.itemFind(uuid: uuid)
+        }
+    }
 }
 
 extension FolderRow: DropDelegate {
@@ -161,24 +173,39 @@ extension FolderRow: DropDelegate {
     }
 }
 
-// Left here as example of how could decode if using the D&D approach
-//    private func onDropHdlr(_ providers: Array<NSItemProvider>) -> Bool {
-//        print("On drop tirggered providers count = \(providers.count)")
-//
-//        providers.forEach { p in
-//            _ = p.loadObject(ofClass: String.self) { text, _ in
-//
-//                guard let itemIdsConcatenated: String = text as String? else {
-//                    return
-//                }
-//
-//                let potentiallyMovedItems: Array<UUID> = itemIdsConcatenated
-//                    .split(separator: ",")
-//                    .map { String($0) }
-//                    .compactMap({ UUID(uuidString: $0) })
-//
-//                appModel.itemsMove(potentiallyMovedItems, into: folderItem)
-//            }
-//        }
-//        return true
-//    }
+/// Example  of how a similiar drag and drop operation could be done using the full-fat, supports export and import from other apps etc approach.
+///
+/// Add encoding provider modifier to  the items where drag is allow to commence from e.g. folder AND ordinary items.
+///
+///     .onDrag( {
+///         let msg = draggingSelection.map({ $0.uuidString }).joined(separator: ",")
+///         return NSItemProvider(object: msg as NSString)
+///     }
+///
+/// Then add decoding functionallity to the onDrop targets and wire it into something that decodes what has been dragged into the app  e.g.
+///
+///         onDrop(of: [.text], $isDropTgt, perform: onDropHdlr)`
+///
+///
+///         func onDropHdlr(_ providers: Array<NSItemProvider>) -> Bool {
+///             print("On drop tirggered providers count = \(providers.count)")
+///             providers.forEach { p in
+///                 _ = p.loadObject(ofClass: String.self) { text, _ in
+///
+///                 guard let itemIdsConcatenated: String = text as String? else {
+///                     return
+///                 }
+///
+///                 let potentiallyMovedItems: Array<UUID> = itemIdsConcatenated
+///                     .split(separator: ",")
+///                     .map { String($0) }
+///                     .compactMap({ UUID(uuidString: $0) })
+///
+///                 appModel.itemsMove(potentiallyMovedItems, into: folderItem)
+///             }
+///         }
+///         return true
+///     }
+///
+/// Decoding process is nearly identical when using a full fat `DropDelegate`, but setting `isDropTagt` type variables more a pita.
+///
