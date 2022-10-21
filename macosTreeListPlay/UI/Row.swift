@@ -8,14 +8,15 @@
 import SwiftUI
 struct Row: View {
     @ObservedObject var item: Item
-    @Binding var selection: Selection
+    @Binding var selectionIds: Selection
+    @Binding var draggingIds: Selection
 
     var body: some View {
         if item.isFolder {
-            FolderRow(folderItem: item, selection: $selection)
+            FolderRow(folderItem: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
 
         } else {
-            DefaultRow(item: item, selection: $selection)
+            DefaultRow(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
         }
     }
 }

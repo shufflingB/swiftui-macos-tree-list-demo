@@ -8,8 +8,6 @@
 import SwiftUI
 
 class AppModel: ObservableObject {
-    
-
     init(items: [Item]) {
         self.items = items
     }
@@ -26,7 +24,6 @@ class AppModel: ObservableObject {
         return unreadInFolder(items)
     }
 
-    
     func itemFind(uuid: UUID) -> Item? {
         Item.findDescendant(with: uuid, inTreesWithRoots: items)
     }
@@ -37,26 +34,26 @@ class AppModel: ObservableObject {
         }
     }
 
-    func itemsMoveIsValid(for  possibleMovers: Array<Item>, into tgtFolder: Item) -> Bool {
+    func itemsMoveIsValid(for possibleMovers: Array<UUID>, into tgtFolder: Item) -> Bool {
         // Invalid to move any folder into itself
         for i in possibleMovers.indices {
             // Invalid to move to self to self
-            if possibleMovers[i].uuid == tgtFolder.uuid { return false }
-            
+            if possibleMovers[i] == tgtFolder.uuid { return false }
+
             // Invalid to move root folders
-            if possibleMovers[i].parent == nil { return false }
+
+            if itemFind(uuid: possibleMovers[i])?.parent == nil { return false }
         }
         return true
     }
-    
+
     func itemsMove(_ possibleMovers: Array<UUID>, into tgtFolder: Item) {
-        /// Remove any items not in the system
-        let possibleMoversExtant: Array<Item> = itemsFind(uuids: Set(possibleMovers))
-        
-        guard itemsMoveIsValid(for: possibleMoversExtant, into: tgtFolder) else {
+        guard itemsMoveIsValid(for: possibleMovers, into: tgtFolder) else {
             return
         }
-        
+
+        /// Remove any items not in the system
+        let possibleMoversExtant: Array<Item> = itemsFind(uuids: Set(possibleMovers))
 
         // Remove any items that already have this folder as their parent.
         let notExistingChild = possibleMoversExtant.filter({

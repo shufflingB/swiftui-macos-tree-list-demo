@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct FolderRow: View {
-    @EnvironmentObject var model: AppModel
+    @EnvironmentObject var appModel: AppModel
     @EnvironmentObject var aet: AutoExpandedTracker
 
     @ObservedObject var folderItem: Item
-    @Binding var selection: Selection
+    @Binding var selectionIds: Selection
+    @Binding var draggingIds: Selection
 
     /// How many seconds after a folder stops being the drop target is it kept open for in order to allow the user to browse to an alternative folder below it in the hierarchy
     /// (Current mechanism only sets a drop target on  Folders, so if a possible drop target is at the bottom of a long list this might need to be longer)
@@ -27,7 +28,7 @@ struct FolderRow: View {
             isExpanded: $isExpanded,
             content: {
                 ForEach(folderItem.children ?? [], id: \.uuid) { item in
-                    Row(item: item, selection: $selection)
+                    Row(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
                 }
             },
             label: {
@@ -35,22 +36,36 @@ struct FolderRow: View {
                     Text(folderItem.name)
                     Spacer()
                 }
-                .onDrop(of: [.text], isTargeted: $isDropTgt, perform: onDropHdlr)
-                .onDrag( {
-                    let msg = draggingSelection.map({ $0.uuidString }).joined(separator: ",")
-                    return NSItemProvider(object: msg as NSString)
+                .onDrop(of: [.text], delegate: self)
+                .onDrag({
+                    /// To make dragging work we have to return and NSItemProvider. However, what's actually being dragged is not actually being communicated via the
+                    /// that mechanism. Instead it is done through setting the`draggingIds` variable.
+                    ///
+                    /// Gone down this route back channel route  (rather than the alternative of either creating our own UTType or enconding into a string, as discussed in places such as
+                    /// https://www.waldo.com/blog/modern-swiftui-drag-and-drop-tutorial) because:
+                    ///
+                    /// 1)  The app has no need to drag the Items into or out of it.
+                    /// 2) Going down the full on route  means that having to employ  an onerous, slow decoding on drop process to verify what arrives at the drop targets.
+                    ///  (see example of a decoding  the end of this file)
+                    /// 3) Even when its onerous, the ability to verify the sanity of what is being dragged is limited due having async loading of the dragged Items
+                    draggingIds = draggingSelection
+
+                    /// Can use any string here we like, just need to provide something for NSItemProvider to satisfy D&D requirements.
+                    return NSItemProvider(object: "Message from \(folderItem.name)" as NSString)
                 }, preview: {
                     if folderItem.parent == nil {
                         Image(systemName: "nosign")
                             .font(.largeTitle)
+                            
                     } else {
                         Text("Valid to drag")
                     }
+                        
                 })
                 .onChange(of: isDropTgt) { newValue in
                     if newValue == true {
                         withAnimation {
-                            selection = [folderItem.uuid]
+                            selectionIds = [folderItem.uuid]
                         }
 
                         dwiTriggerDelayedFolderExpand = DispatchWorkItem {
@@ -59,7 +74,7 @@ struct FolderRow: View {
 
                                 aet.push(ifNotFirstOut: folderItem) // Don't push onto stack multiple times
 
-                                selectionCache = selection
+                                selectionCache = selectionIds
                                 isExpandedCache = isExpanded
 
                                 withAnimation {
@@ -74,7 +89,7 @@ struct FolderRow: View {
 
                     } else {
                         withAnimation {
-                            selection = selectionCache
+                            selectionIds = selectionCache
                         }
 
                         /// A work item is used to  collapse of the DisclosureGroup  after giving the user a bit of time to browse to an item below it
@@ -120,35 +135,50 @@ struct FolderRow: View {
     @State private var dwiTriggerDelayedFolderExpand: DispatchWorkItem? = nil
 
     private var draggingSelection: Selection {
-        selection.count == 0 || selection.contains(folderItem.uuid) == false
+        selectionIds.count == 0 || selectionIds.contains(folderItem.uuid) == false
             ? [folderItem.uuid]
-            : selection
+            : selectionIds
+    }
+}
+
+extension FolderRow: DropDelegate {
+    func dropEntered(info: DropInfo) {
+        isDropTgt = true
     }
 
-    private var draggingSelectionItems: Array<Item> {
-        draggingSelection.compactMap { uuid in
-            model.itemFind(uuid: uuid)
-        }
+    func dropExited(info: DropInfo) {
+        isDropTgt = false
     }
 
-    private func onDropHdlr(_ providers: Array<NSItemProvider>) -> Bool {
-        print("On drop tirggered providers count = \(providers.count)")
+    func validateDrop(info: DropInfo) -> Bool {
+        return appModel.itemsMoveIsValid(for: Array(draggingIds), into: folderItem)
+    }
 
-        providers.forEach { p in
-            _ = p.loadObject(ofClass: String.self) { text, _ in
-
-                guard let itemIdsConcatenated: String = text as String? else {
-                    return
-                }
-
-                let potentiallyMovedItems: Array<UUID> = itemIdsConcatenated
-                    .split(separator: ",")
-                    .map { String($0) }
-                    .compactMap({ UUID(uuidString: $0) })
-
-                model.itemsMove(potentiallyMovedItems, into: folderItem)
-            }
-        }
+    func performDrop(info: DropInfo) -> Bool {
+        appModel.itemsMove(Array(draggingIds), into: folderItem)
+        draggingIds = []
         return true
     }
 }
+
+// Left here as example of how could decode if using the D&D approach
+//    private func onDropHdlr(_ providers: Array<NSItemProvider>) -> Bool {
+//        print("On drop tirggered providers count = \(providers.count)")
+//
+//        providers.forEach { p in
+//            _ = p.loadObject(ofClass: String.self) { text, _ in
+//
+//                guard let itemIdsConcatenated: String = text as String? else {
+//                    return
+//                }
+//
+//                let potentiallyMovedItems: Array<UUID> = itemIdsConcatenated
+//                    .split(separator: ",")
+//                    .map { String($0) }
+//                    .compactMap({ UUID(uuidString: $0) })
+//
+//                appModel.itemsMove(potentiallyMovedItems, into: folderItem)
+//            }
+//        }
+//        return true
+//    }

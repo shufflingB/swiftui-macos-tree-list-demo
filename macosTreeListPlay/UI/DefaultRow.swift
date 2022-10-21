@@ -10,7 +10,8 @@ import SwiftUI
 struct DefaultRow: View {
     @EnvironmentObject var appModel: AppModel
     @ObservedObject var item: Item
-    @Binding var selection: Selection
+    @Binding var selectionIds: Selection
+    @Binding var draggingIds:Selection
     
     var body: some View {
         HStack {
@@ -19,9 +20,10 @@ struct DefaultRow: View {
             Spacer()
         }
         .onDrag {
-            // print("dragging \(draggingSelection.description)")
-            let msg = draggingSelection.map({ $0.uuidString }).joined(separator: ",")
-            return NSItemProvider(object: msg as NSString)
+            draggingIds = draggingSelection
+            /// Can use any string here we like, just need to provide something for NSItemProvider to satisfy D&D requirements.
+            ///  for why see comment in `FolderRow`
+            return NSItemProvider(object: "Message from \(item.name)" as NSString)
         }
         .onChange(of: item.read) { newValue in
             appModel.objectWillChange.send()
@@ -29,8 +31,8 @@ struct DefaultRow: View {
     }
     
     private var draggingSelection: Selection {
-        selection.count == 0 || selection.contains(item.uuid) == false
+        selectionIds.count == 0 || selectionIds.contains(item.uuid) == false
             ? [item.uuid]
-            : selection
+            : selectionIds
     }
 }
