@@ -13,6 +13,7 @@ class AppModel: ObservableObject {
     }
 
     @Published var items: [Item]
+    @Published var isDragging: Bool = false
 
     var unreadCount: Int {
         func unreadInFolder(_ array: [Item]) -> Int {

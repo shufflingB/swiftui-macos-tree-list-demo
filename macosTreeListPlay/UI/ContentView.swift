@@ -14,7 +14,6 @@ import SwiftUI
 // 3) Appearance not very macOS native like
 
 typealias Selection = Set<UUID>
-typealias AutoExpandedTracker = LastInFirstOut<Item>
 
 struct ContentView: View {
     @EnvironmentObject var appModel: AppModel
@@ -30,15 +29,11 @@ struct ContentView: View {
                     }
                     // Note: This onInsert never actually gets run. But if it is not here then we don't get the insert
                     // in FolderRow running. Possibly fragile code 🤔
-                    .onInsert(of: [.text]) { (idx: Int, providers: Array<NSItemProvider> ) in
+                    .onInsert(of: [.text]) { (idx: Int, _: Array<NSItemProvider>) in
                         print("Top Got inserted at , idx = \(idx)")
                     }
-
                 }
                 .listStyle(.sidebar)
-//                .onChange(of: selectionIds) { newValue in
-//                    print("selection ids = \(newValue)")
-//                }
             }, detail: {
                 VStack {
                     if selectionIds.count == 0 {
@@ -55,12 +50,10 @@ struct ContentView: View {
                 .padding(10)
             })
         }
-        .environmentObject(aet)
     }
 
     @State private var selectionIds = Selection() // Stores what is currently selected
     @State private var draggingIds = Selection() // Stores what is being dragged
-    @StateObject private var aet = AutoExpandedTracker() // One per-window
 
     private var detailItemsSelected: Array<Item> {
         appModel.itemsFind(uuids: selectionIds)

@@ -9,15 +9,12 @@ import SwiftUI
 
 struct FolderRow: View {
     @EnvironmentObject var appModel: AppModel
-    @EnvironmentObject var aet: AutoExpandedTracker
 
     @ObservedObject var folderItem: Item
     @Binding var selectionIds: Selection
     @Binding var draggingIds: Selection
 
     /// How many seconds after a folder stops being the drop target is it kept open for in order to allow the user to browse to an alternative folder below it in the hierarchy
-    /// (Current mechanism only sets a drop target on  Folders, so if a possible drop target is at the bottom of a long list this might need to be longer)
-    // TODO: Add something that stops collapse when user is hovering over normal items as well as folders.
     static let DisclosureGroupHoldOffTimeCollapse = 2.0
 
     /// How many seconds to hold of expanding a folder so that the user doesn't inadvertantly auto expand all folder they browse over
@@ -30,8 +27,7 @@ struct FolderRow: View {
                 ForEach(folderItem.children ?? [], id: \.uuid) { item in
                     Tree(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
                 }
-                .onInsert(of: [.text]) { (idx: Int, _: Array<NSItemProvider>) in
-                    print("Got inserted in folder \(folderItem.name) at idx = \(idx)")
+                .onInsert(of: [.text]) { (_: Int, _: Array<NSItemProvider>) in
                     let insertItems = appModel.itemsFind(uuids: draggingIds)
                     insertItems.forEach { item in
                         folderItem.adopt(child: item)
@@ -64,6 +60,7 @@ struct FolderRow: View {
                     /// check it against the target, but the receiver does not know what's been dragged until it async loads the object. A works around this in their apps by allowing
                     /// the drop, but then triggering an annimated response that indicates what's happened, e.g. no movement with Finder,
                     draggingIds = Selection(appModel.draggingSelectionIds(dragItemId: folderItem.uuid, selectionIds: selectionIds))
+                    appModel.isDragging = true
 
                     /// Can use any string here we like, just need to provide something for NSItemProvider to satisfy D&D requirements.
                     return NSItemProvider(object: "Message from \(folderItem.name)" as NSString)
@@ -71,6 +68,9 @@ struct FolderRow: View {
                     if folderItem.parent == nil {
                         Image(systemName: "nosign")
                             .font(.largeTitle)
+                            .onDisappear {
+                                self.appModel.isDragging = false
+                            }
 
                     } else {
                         DraggingPreview(
@@ -79,26 +79,27 @@ struct FolderRow: View {
                                 selectionIds: selectionIds
                             )
                         )
+                        .onDisappear {
+                            self.appModel.isDragging = false
+                        }
                     }
 
                 })
 
                 .onChange(of: isDropTgt) { newValue in
                     if newValue == true {
+                        // Cache the current list selection and then make List high light the drop target by setting it as the
+                        // List's selection
                         selectionCache = selectionIds
-
                         withAnimation {
                             selectionIds = [folderItem.uuid]
                         }
 
+                        // Have the list auto expand the moment the user mouses over is a bit 💩. Instead queue a job that will
+                        // expand it only if the user is still hovering of the drop target at some point in the future.
                         dwiTriggerDelayedFolderExpand = DispatchWorkItem {
                             if isDropTgt == true {
-                                dwiTriggerDelayedFolderCollapse?.cancel()
-
-                                aet.push(ifNotFirstOut: folderItem) // Don't push onto stack multiple times
-
                                 isExpandedCache = isExpanded
-
                                 withAnimation {
                                     isExpanded = true
                                 }
@@ -108,74 +109,37 @@ struct FolderRow: View {
                             deadline: .now() + Self.DisclosureGroupHoldOffTimeExpand,
                             execute: dwiTriggerDelayedFolderExpand!
                         )
-
                     } else {
+                        // Restor the previous List selection
                         withAnimation {
                             selectionIds = selectionCache
                         }
-
-                        /// A work item is used to  collapse of the DisclosureGroup  after giving the user a bit of time to browse to an item below it
-                        dwiTriggerDelayedFolderCollapse = DispatchWorkItem {
-                            if aet.firstOut == folderItem {
-                                dwiTriggerDelayedFolderExpand?.cancel()
-                                /// Then we have:
-                                /// 1) This job only runs when the user doesn't have this item as the DropTarget
-                                /// 2)  And the user isn't browsed somewhere else below it so we do not need to worry about keeping it open.
-                                /// QED: we should be okay to collapse the folder if that was the user previously had set
-                                withAnimation {
-                                    isExpanded = isExpandedCache
-                                }
-                                _ = aet.pop()
-                            }
-                        }
-
-                        DispatchQueue.main.asyncAfter(
-                            deadline: .now() + Self.DisclosureGroupHoldOffTimeCollapse,
-                            execute: dwiTriggerDelayedFolderCollapse!
-                        )
                     }
                 }
-                .onChange(of: aet.firstOut) { newFirstOut in
-                    if newFirstOut == folderItem && isDropTgt == false {
-                        DispatchQueue.main.async {
-                            withAnimation {
-                                isExpanded = isExpandedCache
-                            }
-                            _ = aet.pop()
+                .onChange(of: appModel.isDragging, perform: { newValue in
+                    guard newValue == false && isExpanded != isExpandedCache else {
+                        return
+                    }
+                    // Kill any queued job to expand this group.
+                    dwiTriggerDelayedFolderExpand?.cancel()
+
+                    // Restore to the pre-mouse over expansion state
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Self.DisclosureGroupHoldOffTimeCollapse) {
+                        withAnimation {
+                            isExpanded = isExpandedCache
                         }
                     }
-                }
+                })
             }
         )
     }
 
-    @State private var isDropTgt: Bool = false
+    @State internal var isDropTgt: Bool = false
     @State private var selectionCache: Selection = []
     @State private var isExpanded: Bool = false
     @State private var isExpandedCache: Bool = false
     @State private var dwiTriggerDelayedFolderCollapse: DispatchWorkItem? = nil
     @State private var dwiTriggerDelayedFolderExpand: DispatchWorkItem? = nil
-}
-
-extension FolderRow: DropDelegate {
-    func dropEntered(info: DropInfo) {
-        isDropTgt = true
-    }
-
-    func dropExited(info: DropInfo) {
-        isDropTgt = false
-    }
-
-    func validateDrop(info: DropInfo) -> Bool {
-        return appModel.itemsMoveIsValid(for: Array(draggingIds), into: folderItem)
-    }
-
-    func performDrop(info: DropInfo) -> Bool {
-        appModel.itemsMove(Array(draggingIds), into: folderItem)
-        selectionIds = draggingIds
-        draggingIds = []
-        return true
-    }
 }
 
 /// Example  of how a similiar drag and drop operation could be done using the full-fat, supports export and import from other apps etc approach.

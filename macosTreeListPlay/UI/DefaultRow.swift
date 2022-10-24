@@ -24,6 +24,8 @@ struct DefaultRow: View {
                 dragItemId: item.uuid,
                 selectionIds: selectionIds
             ))
+            self.appModel.isDragging = true
+
             /// Can use any string here we like, just need to provide something for NSItemProvider to satisfy D&D requirements.
             ///  for why see comment in `FolderRow`
             return NSItemProvider(object: "Message from \(item.name)" as NSString)
@@ -35,6 +37,10 @@ struct DefaultRow: View {
                     selectionIds: selectionIds
                 )
             )
+            .onDisappear {
+                self.appModel.isDragging = false
+            }
+
         })
         .onChange(of: item.read) { _ in
             appModel.objectWillChange.send()
