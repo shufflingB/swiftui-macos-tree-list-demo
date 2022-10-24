@@ -17,7 +17,7 @@ extension FolderRow: DropDelegate {
     }
 
     func validateDrop(info: DropInfo) -> Bool {
-        return appModel.itemsMoveIsValid(for: Array(draggingIds), into: folderItem)
+        return appModel.itemsToMoveIsValid(for: Array(draggingIds), into: folderItem)
     }
 
     func performDrop(info: DropInfo) -> Bool {

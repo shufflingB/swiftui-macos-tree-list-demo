@@ -20,7 +20,7 @@ struct DefaultRow: View {
             Spacer()
         }
         .onDrag({
-            draggingIds = Selection(appModel.draggingSelectionIds(
+            draggingIds = Selection(appModel.itemIdsToMove(
                 dragItemId: item.uuid,
                 selectionIds: selectionIds
             ))
@@ -32,7 +32,7 @@ struct DefaultRow: View {
         }
         , preview: {
             DraggingPreview(
-                draggingSelectionItems: appModel.draggingSelectionItems(
+                draggingSelectionItems: appModel.itemsToMove(
                     dragItemId: item.uuid,
                     selectionIds: selectionIds
                 )

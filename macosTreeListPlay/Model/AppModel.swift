@@ -9,24 +9,24 @@ import SwiftUI
 
 class AppModel: ObservableObject {
     init(items: [Item]) {
-        self.items = items
+        self.itemsAtTopLevel = items
     }
 
-    @Published var items: [Item]
+    @Published var itemsAtTopLevel: [Item]
     @Published var isDragging: Bool = false
 
-    var unreadCount: Int {
+    var itemsUnreadCount: Int {
         func unreadInFolder(_ array: [Item]) -> Int {
             return array.reduce(0) { acc, value in
                 acc + (value.isFolder ? unreadInFolder(value.children ?? []) : (value.read ? 0 : 1))
             }
         }
 
-        return unreadInFolder(items)
+        return unreadInFolder(itemsAtTopLevel)
     }
 
     func itemFindInTrees(uuid: UUID) -> Item? {
-        Item.findDescendant(with: uuid, inTreesWithRoots: items)
+        Item.findDescendant(with: uuid, inTreesWithRoots: itemsAtTopLevel)
     }
 
     func itemsFind(uuids: Set<UUID>) -> Array<Item> {
@@ -35,19 +35,19 @@ class AppModel: ObservableObject {
         }
     }
 
-    func draggingSelectionIds(dragItemId: UUID, selectionIds: Selection) -> Array<UUID> {
-        let asArray = draggingSelectionItems(dragItemId: dragItemId, selectionIds: selectionIds)
+    func itemIdsToMove(dragItemId: UUID, selectionIds: Selection) -> Array<UUID> {
+        let asArray = itemsToMove(dragItemId: dragItemId, selectionIds: selectionIds)
             .map({ $0.uuid })
         return asArray
     }
 
-    func draggingSelectionItems(dragItemId: UUID, selectionIds: Selection) -> Array<Item> {
+    func itemsToMove(dragItemId: UUID, selectionIds: Selection) -> Array<Item> {
         let withPossibleChildrenIds =
             selectionIds.count == 0 || selectionIds.contains(dragItemId) == false
                 ? [dragItemId]
                 : selectionIds
 
-        // Map to items and remove any ids that are not in the
+        // Map to items and remove any ids that are not in the tree
         let inSystemWithPossibleChildrenItems =
             withPossibleChildrenIds
                 .compactMap { uuid in
@@ -65,18 +65,18 @@ class AppModel: ObservableObject {
         return notMovedByOthersInSelection
     }
 
-    func itemsMoveIsValid(for possibleMovers: Array<UUID>, into tgtFolder: Item) -> Bool {
-        // Invalid to move any folder into itself
+    func itemsToMoveIsValid(for possibleMovers: Array<UUID>, into tgtFolder: Item) -> Bool {
+        
         for i in possibleMovers.indices {
             // Invalid to move to self to self
             if possibleMovers[i] == tgtFolder.uuid {
-                print("Flagging invald as move is to self")
+                //print("Invalid move: attempting move an item into its self")
                 return false
             }
 
             // Invalid to move root folders
             if itemFindInTrees(uuid: possibleMovers[i])?.parent == nil {
-                print("Flagging invald as illegal to move self")
+                //print("Invalid move: attempting to move a root item, i.e. one that has no parents")
                 return false
             }
         }
@@ -84,7 +84,7 @@ class AppModel: ObservableObject {
     }
 
     func itemsMove(_ possibleMovers: Array<UUID>, into tgtFolder: Item) {
-        guard itemsMoveIsValid(for: possibleMovers, into: tgtFolder) else {
+        guard itemsToMoveIsValid(for: possibleMovers, into: tgtFolder) else {
             return
         }
 

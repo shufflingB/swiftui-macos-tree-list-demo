@@ -20,10 +20,10 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
-            Text("Unread Messages: \(appModel.unreadCount)")
+            Text("Unread Messages: \(appModel.itemsUnreadCount)")
             NavigationSplitView(sidebar: {
                 List(selection: $selectionIds) {
-                    ForEach(appModel.items) { item in
+                    ForEach(appModel.itemsAtTopLevel) { item in
                         Tree(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
                             .id(item.uuid)
                     }

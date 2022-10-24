@@ -59,7 +59,7 @@ struct FolderRow: View {
                     /// instance the difficulty of providng feedback that folder's can't be dropped onto themselves (the receiver needs to know what's been dragged in order to
                     /// check it against the target, but the receiver does not know what's been dragged until it async loads the object. A works around this in their apps by allowing
                     /// the drop, but then triggering an annimated response that indicates what's happened, e.g. no movement with Finder,
-                    draggingIds = Selection(appModel.draggingSelectionIds(dragItemId: folderItem.uuid, selectionIds: selectionIds))
+                    draggingIds = Selection(appModel.itemIdsToMove(dragItemId: folderItem.uuid, selectionIds: selectionIds))
                     appModel.isDragging = true
 
                     /// Can use any string here we like, just need to provide something for NSItemProvider to satisfy D&D requirements.
@@ -74,7 +74,7 @@ struct FolderRow: View {
 
                     } else {
                         DraggingPreview(
-                            draggingSelectionItems: appModel.draggingSelectionItems(
+                            draggingSelectionItems: appModel.itemsToMove(
                                 dragItemId: folderItem.uuid,
                                 selectionIds: selectionIds
                             )
