@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-struct Row: View {
+struct Tree: View {
     @ObservedObject var item: Item
     @Binding var selectionIds: Selection
     @Binding var draggingIds: Selection
@@ -17,6 +17,7 @@ struct Row: View {
 
         } else {
             DefaultRow(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
+                .id(item.uuid)
         }
     }
 }

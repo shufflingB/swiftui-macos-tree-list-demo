@@ -28,7 +28,16 @@ struct FolderRow: View {
             isExpanded: $isExpanded,
             content: {
                 ForEach(folderItem.children ?? [], id: \.uuid) { item in
-                    Row(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
+                    Tree(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
+                }
+                .onInsert(of: [.text]) { (idx: Int, _: Array<NSItemProvider>) in
+                    print("Got inserted in folder \(folderItem.name) at idx = \(idx)")
+                    let insertItems = appModel.itemsFind(uuids: draggingIds)
+                    insertItems.forEach { item in
+                        folderItem.adopt(child: item)
+                    }
+                    selectionIds = draggingIds
+                    draggingIds = []
                 }
             },
             label: {
@@ -36,6 +45,7 @@ struct FolderRow: View {
                     Text(folderItem.name)
                     Spacer()
                 }
+                .id(folderItem.uuid)
 
                 .onDrop(of: [.text], delegate: self)
                 .onDrag({
@@ -53,23 +63,30 @@ struct FolderRow: View {
                     /// instance the difficulty of providng feedback that folder's can't be dropped onto themselves (the receiver needs to know what's been dragged in order to
                     /// check it against the target, but the receiver does not know what's been dragged until it async loads the object. A works around this in their apps by allowing
                     /// the drop, but then triggering an annimated response that indicates what's happened, e.g. no movement with Finder,
-                    draggingIds = draggingSelection
+                    draggingIds = Selection(appModel.draggingSelectionIds(dragItemId: folderItem.uuid, selectionIds: selectionIds))
 
                     /// Can use any string here we like, just need to provide something for NSItemProvider to satisfy D&D requirements.
                     return NSItemProvider(object: "Message from \(folderItem.name)" as NSString)
-                }) // , preview: {
-//                    if folderItem.parent == nil {
-//                        Image(systemName: "nosign")
-//                            .font(.largeTitle)
-//
-//                    } else {
-//                        Text("Dragging \(draggingIds.count) items").font(.largeTitle)
-//                    }
-//
-//                })
+                }, preview: {
+                    if folderItem.parent == nil {
+                        Image(systemName: "nosign")
+                            .font(.largeTitle)
+
+                    } else {
+                        DraggingPreview(
+                            draggingSelectionItems: appModel.draggingSelectionItems(
+                                dragItemId: folderItem.uuid,
+                                selectionIds: selectionIds
+                            )
+                        )
+                    }
+
+                })
 
                 .onChange(of: isDropTgt) { newValue in
                     if newValue == true {
+                        selectionCache = selectionIds
+
                         withAnimation {
                             selectionIds = [folderItem.uuid]
                         }
@@ -80,7 +97,6 @@ struct FolderRow: View {
 
                                 aet.push(ifNotFirstOut: folderItem) // Don't push onto stack multiple times
 
-                                selectionCache = selectionIds
                                 isExpandedCache = isExpanded
 
                                 withAnimation {
@@ -139,18 +155,6 @@ struct FolderRow: View {
     @State private var isExpandedCache: Bool = false
     @State private var dwiTriggerDelayedFolderCollapse: DispatchWorkItem? = nil
     @State private var dwiTriggerDelayedFolderExpand: DispatchWorkItem? = nil
-
-    private var draggingSelection: Selection {
-        selectionIds.count == 0 || selectionIds.contains(folderItem.uuid) == false
-            ? [folderItem.uuid]
-            : selectionIds
-    }
-
-    private var draggingSelectionItems: Array<Item> {
-        draggingSelection.compactMap { uuid in
-            appModel.itemFind(uuid: uuid)
-        }
-    }
 }
 
 extension FolderRow: DropDelegate {
@@ -168,6 +172,7 @@ extension FolderRow: DropDelegate {
 
     func performDrop(info: DropInfo) -> Bool {
         appModel.itemsMove(Array(draggingIds), into: folderItem)
+        selectionIds = draggingIds
         draggingIds = []
         return true
     }

@@ -24,25 +24,60 @@ class AppModel: ObservableObject {
         return unreadInFolder(items)
     }
 
-    func itemFind(uuid: UUID) -> Item? {
+    func itemFindInTrees(uuid: UUID) -> Item? {
         Item.findDescendant(with: uuid, inTreesWithRoots: items)
     }
 
     func itemsFind(uuids: Set<UUID>) -> Array<Item> {
         uuids.compactMap { uuid in
-            itemFind(uuid: uuid)
+            itemFindInTrees(uuid: uuid)
         }
+    }
+
+    func draggingSelectionIds(dragItemId: UUID, selectionIds: Selection) -> Array<UUID> {
+        let asArray = draggingSelectionItems(dragItemId: dragItemId, selectionIds: selectionIds)
+            .map({ $0.uuid })
+        return asArray
+    }
+
+    func draggingSelectionItems(dragItemId: UUID, selectionIds: Selection) -> Array<Item> {
+        let withPossibleChildrenIds =
+            selectionIds.count == 0 || selectionIds.contains(dragItemId) == false
+                ? [dragItemId]
+                : selectionIds
+
+        // Map to items and remove any ids that are not in the
+        let inSystemWithPossibleChildrenItems =
+            withPossibleChildrenIds
+                .compactMap { uuid in
+                    itemFindInTrees(uuid: uuid)
+                }
+
+        // Remove any in the selection that are descendents of other items in the selection i.e. only need to reparent the
+        // the top most item.
+        let notMovedByOthersInSelection =
+            inSystemWithPossibleChildrenItems
+                .filter { item in
+                    item.isDescendant(ofAnyOf: inSystemWithPossibleChildrenItems) != true
+                }
+
+        return notMovedByOthersInSelection
     }
 
     func itemsMoveIsValid(for possibleMovers: Array<UUID>, into tgtFolder: Item) -> Bool {
         // Invalid to move any folder into itself
         for i in possibleMovers.indices {
             // Invalid to move to self to self
-            if possibleMovers[i] == tgtFolder.uuid { return false }
+            if possibleMovers[i] == tgtFolder.uuid {
+                print("Flagging invald as move is to self")
+                return false
+            }
 
             // Invalid to move root folders
-
-            if itemFind(uuid: possibleMovers[i])?.parent == nil { return false }
+            if itemFindInTrees(uuid: possibleMovers[i])?.parent == nil {
+                print("Flagging invald as illegal to move self")
+                return false
+            }
         }
         return true
     }

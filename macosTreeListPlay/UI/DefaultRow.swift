@@ -20,23 +20,24 @@ struct DefaultRow: View {
             Spacer()
         }
         .onDrag({
-            draggingIds = draggingSelection
+            draggingIds = Selection(appModel.draggingSelectionIds(
+                dragItemId: item.uuid,
+                selectionIds: selectionIds
+            ))
             /// Can use any string here we like, just need to provide something for NSItemProvider to satisfy D&D requirements.
             ///  for why see comment in `FolderRow`
             return NSItemProvider(object: "Message from \(item.name)" as NSString)
         }
-//        , preview: {
-//            Text("BLAHHHHH")
-//        }
-        )
+        , preview: {
+            DraggingPreview(
+                draggingSelectionItems: appModel.draggingSelectionItems(
+                    dragItemId: item.uuid,
+                    selectionIds: selectionIds
+                )
+            )
+        })
         .onChange(of: item.read) { _ in
             appModel.objectWillChange.send()
         }
-    }
-
-    private var draggingSelection: Selection {
-        selectionIds.count == 0 || selectionIds.contains(item.uuid) == false
-            ? [item.uuid]
-            : selectionIds
     }
 }

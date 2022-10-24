@@ -32,6 +32,12 @@ class Item: ObservableObject, Identifiable, Equatable {
     }
 
     func adopt(child childItem: Item) {
+        // Prevent accidentally adopting self
+        guard self.uuid != childItem.uuid else {
+            return
+        }
+        
+        
         // If child has existing parent then remove it
         if let childsExistingParent = childItem.parent {
             if let remainingKids = childsExistingParent.children?.filter({ $0 != childItem }) {

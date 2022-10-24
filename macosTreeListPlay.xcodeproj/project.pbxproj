@@ -10,12 +10,13 @@
 		FF1C1C7B2747C93800DE55F4 /* macosTreeListPlayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1C1C7A2747C93800DE55F4 /* macosTreeListPlayApp.swift */; };
 		FF1C1C7F2747C93A00DE55F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF1C1C7E2747C93A00DE55F4 /* Assets.xcassets */; };
 		FF1C1C822747C93A00DE55F4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF1C1C812747C93A00DE55F4 /* Preview Assets.xcassets */; };
+		FF3999B92905646600417F05 /* DraggingPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF3999B82905646600417F05 /* DraggingPreview.swift */; };
 		FF4244A029006279003F7C95 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF42449E29006279003F7C95 /* AppModel.swift */; };
 		FF4244A129006279003F7C95 /* LastInFirstOut.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF42449F29006279003F7C95 /* LastInFirstOut.swift */; };
 		FF4244A3290062F2003F7C95 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4244A2290062F1003F7C95 /* Item.swift */; };
 		FF4244A929006381003F7C95 /* DefaultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4244A529006381003F7C95 /* DefaultRow.swift */; };
 		FF4244AA29006381003F7C95 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4244A629006381003F7C95 /* ContentView.swift */; };
-		FF4244AB29006381003F7C95 /* Row.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4244A729006381003F7C95 /* Row.swift */; };
+		FF4244AB29006381003F7C95 /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4244A729006381003F7C95 /* Tree.swift */; };
 		FF4244AC29006381003F7C95 /* FolderRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4244A829006381003F7C95 /* FolderRow.swift */; };
 /* End PBXBuildFile section */
 
@@ -28,12 +29,13 @@
 		FF1C1C832747C93A00DE55F4 /* macosTreeListPlay.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macosTreeListPlay.entitlements; sourceTree = "<group>"; };
 		FF28B24D2768F80E00A137F9 /* appScreenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appScreenshot.png; sourceTree = "<group>"; };
 		FF28B24E276979D500A137F9 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		FF3999B82905646600417F05 /* DraggingPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraggingPreview.swift; sourceTree = "<group>"; };
 		FF42449E29006279003F7C95 /* AppModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		FF42449F29006279003F7C95 /* LastInFirstOut.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LastInFirstOut.swift; sourceTree = "<group>"; };
 		FF4244A2290062F1003F7C95 /* Item.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		FF4244A529006381003F7C95 /* DefaultRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultRow.swift; sourceTree = "<group>"; };
 		FF4244A629006381003F7C95 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		FF4244A729006381003F7C95 /* Row.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Row.swift; sourceTree = "<group>"; };
+		FF4244A729006381003F7C95 /* Tree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
 		FF4244A829006381003F7C95 /* FolderRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FolderRow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -92,9 +94,10 @@
 			isa = PBXGroup;
 			children = (
 				FF4244A629006381003F7C95 /* ContentView.swift */,
+				FF4244A729006381003F7C95 /* Tree.swift */,
 				FF4244A529006381003F7C95 /* DefaultRow.swift */,
 				FF4244A829006381003F7C95 /* FolderRow.swift */,
-				FF4244A729006381003F7C95 /* Row.swift */,
+				FF3999B82905646600417F05 /* DraggingPreview.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -180,11 +183,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				FF4244A929006381003F7C95 /* DefaultRow.swift in Sources */,
+				FF3999B92905646600417F05 /* DraggingPreview.swift in Sources */,
 				FF4244A3290062F2003F7C95 /* Item.swift in Sources */,
 				FF4244AA29006381003F7C95 /* ContentView.swift in Sources */,
 				FF4244A129006279003F7C95 /* LastInFirstOut.swift in Sources */,
 				FF4244A029006279003F7C95 /* AppModel.swift in Sources */,
-				FF4244AB29006381003F7C95 /* Row.swift in Sources */,
+				FF4244AB29006381003F7C95 /* Tree.swift in Sources */,
 				FF4244AC29006381003F7C95 /* FolderRow.swift in Sources */,
 				FF1C1C7B2747C93800DE55F4 /* macosTreeListPlayApp.swift in Sources */,
 			);

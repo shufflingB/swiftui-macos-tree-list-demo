@@ -8,7 +8,10 @@
 import SwiftUI
 // Not great ...
 // 1) Drag has to be on the actual item, can't just grab the row.
-// 2) Doesn't appear very macOS native
+// 2) Dragging preview for structured items is not a nice preview of the structure from which the items
+// were selected.
+// Cannot select root level items
+// 3) Appearance not very macOS native like
 
 typealias Selection = Set<UUID>
 typealias AutoExpandedTracker = LastInFirstOut<Item>
@@ -22,10 +25,20 @@ struct ContentView: View {
             NavigationSplitView(sidebar: {
                 List(selection: $selectionIds) {
                     ForEach(appModel.items) { item in
-                        Row(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
+                        Tree(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
+                            .id(item.uuid)
                     }
+                    // Note: This onInsert never actually gets run. But if it is not here then we don't get the insert
+                    // in FolderRow running. Possibly fragile code 🤔
+                    .onInsert(of: [.text]) { (idx: Int, providers: Array<NSItemProvider> ) in
+                        print("Top Got inserted at , idx = \(idx)")
+                    }
+
                 }
                 .listStyle(.sidebar)
+//                .onChange(of: selectionIds) { newValue in
+//                    print("selection ids = \(newValue)")
+//                }
             }, detail: {
                 VStack {
                     if selectionIds.count == 0 {
