@@ -10,8 +10,8 @@ import SwiftUI
 struct DefaultRow: View {
     @EnvironmentObject var appModel: AppModel
     @ObservedObject var item: Item
-    @Binding var selectionIds: Selection
-    @Binding var draggingIds: Selection
+    @Binding var selectionIds: AppModel.Selection
+    @Binding var draggingIds: AppModel.Selection
 
     var body: some View {
         HStack {
@@ -20,8 +20,8 @@ struct DefaultRow: View {
             Spacer()
         }
         .onDrag({
-            draggingIds = Selection(appModel.itemIdsToMove(
-                dragItemId: item.uuid,
+            draggingIds = AppModel.Selection(appModel.itemIdsToMove(
+                dragItemId: item.id,
                 selectionIds: selectionIds
             ))
             self.appModel.isDragging = true
@@ -33,7 +33,7 @@ struct DefaultRow: View {
         , preview: {
             DraggingPreview(
                 draggingSelectionItems: appModel.itemsToMove(
-                    dragItemId: item.uuid,
+                    dragItemId: item.id,
                     selectionIds: selectionIds
                 )
             )

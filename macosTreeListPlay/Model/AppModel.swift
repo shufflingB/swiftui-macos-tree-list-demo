@@ -8,6 +8,9 @@
 import SwiftUI
 
 class AppModel: ObservableObject {
+    
+    typealias Selection = Set<Item.Id>
+    
     init(items: [Item]) {
         self.itemsAtTopLevel = items
     }
@@ -25,23 +28,23 @@ class AppModel: ObservableObject {
         return unreadInFolder(itemsAtTopLevel)
     }
 
-    func itemFindInTrees(uuid: UUID) -> Item? {
-        Item.findDescendant(with: uuid, inTreesWithRoots: itemsAtTopLevel)
+    func itemFindInTrees(id: Item.Id) -> Item? {
+        Item.findDescendant(with: id, inTreesWithRoots: itemsAtTopLevel)
     }
 
-    func itemsFind(uuids: Set<UUID>) -> Array<Item> {
-        uuids.compactMap { uuid in
-            itemFindInTrees(uuid: uuid)
+    func itemsFind(ids: Set<Item.Id>) -> Array<Item> {
+        ids.compactMap { id in
+            itemFindInTrees(id: id)
         }
     }
 
-    func itemIdsToMove(dragItemId: UUID, selectionIds: Selection) -> Array<UUID> {
+    func itemIdsToMove(dragItemId: Item.Id, selectionIds: Selection) -> Array<Item.Id> {
         let asArray = itemsToMove(dragItemId: dragItemId, selectionIds: selectionIds)
-            .map({ $0.uuid })
+            .map({ $0.id })
         return asArray
     }
 
-    func itemsToMove(dragItemId: UUID, selectionIds: Selection) -> Array<Item> {
+    func itemsToMove(dragItemId: Item.Id, selectionIds: Selection) -> Array<Item> {
         let withPossibleChildrenIds =
             selectionIds.count == 0 || selectionIds.contains(dragItemId) == false
                 ? [dragItemId]
@@ -50,8 +53,8 @@ class AppModel: ObservableObject {
         // Map to items and remove any ids that are not in the tree
         let inSystemWithPossibleChildrenItems =
             withPossibleChildrenIds
-                .compactMap { uuid in
-                    itemFindInTrees(uuid: uuid)
+                .compactMap { id in
+                    itemFindInTrees(id: id)
                 }
 
         // Remove any in the selection that are descendents of other items in the selection i.e. only need to reparent the
@@ -65,17 +68,17 @@ class AppModel: ObservableObject {
         return notMovedByOthersInSelection
     }
 
-    func itemsToMoveIsValid(for possibleMovers: Array<UUID>, into tgtFolder: Item) -> Bool {
+    func itemsToMoveIsValid(for possibleMovers: Array<Item.Id>, into tgtFolder: Item) -> Bool {
         
         for i in possibleMovers.indices {
             // Invalid to move to self to self
-            if possibleMovers[i] == tgtFolder.uuid {
+            if possibleMovers[i] == tgtFolder.id {
                 //print("Invalid move: attempting move an item into its self")
                 return false
             }
 
             // Invalid to move root folders
-            if itemFindInTrees(uuid: possibleMovers[i])?.parent == nil {
+            if itemFindInTrees(id: possibleMovers[i])?.parent == nil {
                 //print("Invalid move: attempting to move a root item, i.e. one that has no parents")
                 return false
             }
@@ -83,17 +86,17 @@ class AppModel: ObservableObject {
         return true
     }
 
-    func itemsMove(_ possibleMovers: Array<UUID>, into tgtFolder: Item) {
+    func itemsMove(_ possibleMovers: Array<Item.Id>, into tgtFolder: Item) {
         guard itemsToMoveIsValid(for: possibleMovers, into: tgtFolder) else {
             return
         }
 
         /// Remove any items not in the system
-        let possibleMoversExtant: Array<Item> = itemsFind(uuids: Set(possibleMovers))
+        let possibleMoversExtant: Array<Item> = itemsFind(ids: Set(possibleMovers))
 
         // Remove any items that already have this folder as their parent.
         let notExistingChild = possibleMoversExtant.filter({
-            if let parentId = $0.parent?.uuid, parentId == tgtFolder.uuid {
+            if let parentId = $0.parent?.id, parentId == tgtFolder.id {
                 return false
             } else {
                 return true

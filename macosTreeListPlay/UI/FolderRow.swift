@@ -11,8 +11,8 @@ struct FolderRow: View {
     @EnvironmentObject var appModel: AppModel
 
     @ObservedObject var folderItem: Item
-    @Binding var selectionIds: Selection
-    @Binding var draggingIds: Selection
+    @Binding var selectionIds: AppModel.Selection
+    @Binding var draggingIds: AppModel.Selection
 
     /// How many seconds after a folder stops being the drop target is it kept open for in order to allow the user to browse to an alternative folder below it in the hierarchy
     static let DisclosureGroupHoldOffTimeCollapse = 2.0
@@ -24,11 +24,11 @@ struct FolderRow: View {
         DisclosureGroup(
             isExpanded: $isExpanded,
             content: {
-                ForEach(folderItem.children ?? [], id: \.uuid) { item in
+                ForEach(folderItem.children ?? [], id: \.id) { item in
                     Tree(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
                 }
                 .onInsert(of: [.text]) { (_: Int, _: Array<NSItemProvider>) in
-                    let insertItems = appModel.itemsFind(uuids: draggingIds)
+                    let insertItems = appModel.itemsFind(ids: draggingIds)
                     insertItems.forEach { item in
                         folderItem.adopt(child: item)
                     }
@@ -41,7 +41,7 @@ struct FolderRow: View {
                     Text(folderItem.name)
                     Spacer()
                 }
-                .id(folderItem.uuid)
+                .id(folderItem.id)
 
                 .onDrop(of: [.text], delegate: self)
                 .onDrag({
@@ -59,7 +59,7 @@ struct FolderRow: View {
                     /// instance the difficulty of providng feedback that folder's can't be dropped onto themselves (the receiver needs to know what's been dragged in order to
                     /// check it against the target, but the receiver does not know what's been dragged until it async loads the object. A works around this in their apps by allowing
                     /// the drop, but then triggering an annimated response that indicates what's happened, e.g. no movement with Finder,
-                    draggingIds = Selection(appModel.itemIdsToMove(dragItemId: folderItem.uuid, selectionIds: selectionIds))
+                    draggingIds = AppModel.Selection(appModel.itemIdsToMove(dragItemId: folderItem.id, selectionIds: selectionIds))
                     appModel.isDragging = true
 
                     /// Can use any string here we like, just need to provide something for NSItemProvider to satisfy D&D requirements.
@@ -75,7 +75,7 @@ struct FolderRow: View {
                     } else {
                         DraggingPreview(
                             draggingSelectionItems: appModel.itemsToMove(
-                                dragItemId: folderItem.uuid,
+                                dragItemId: folderItem.id,
                                 selectionIds: selectionIds
                             )
                         )
@@ -92,7 +92,7 @@ struct FolderRow: View {
                         // List's selection
                         selectionCache = selectionIds
                         withAnimation {
-                            selectionIds = [folderItem.uuid]
+                            selectionIds = [folderItem.id]
                         }
 
                         // Have the list auto expand the moment the user mouses over is a bit 💩. Instead queue a job that will
@@ -135,7 +135,7 @@ struct FolderRow: View {
     }
 
     @State internal var isDropTgt: Bool = false
-    @State private var selectionCache: Selection = []
+    @State private var selectionCache: AppModel.Selection = []
     @State private var isExpanded: Bool = false
     @State private var isExpandedCache: Bool = false
     @State private var dwiTriggerDelayedFolderCollapse: DispatchWorkItem? = nil

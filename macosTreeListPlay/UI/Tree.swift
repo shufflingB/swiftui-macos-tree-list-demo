@@ -8,8 +8,8 @@
 import SwiftUI
 struct Tree: View {
     @ObservedObject var item: Item
-    @Binding var selectionIds: Selection
-    @Binding var draggingIds: Selection
+    @Binding var selectionIds: AppModel.Selection
+    @Binding var draggingIds: AppModel.Selection
 
     var body: some View {
         if item.isFolder {
@@ -17,7 +17,7 @@ struct Tree: View {
 
         } else {
             DefaultRow(item: item, selectionIds: $selectionIds, draggingIds: $draggingIds)
-                .id(item.uuid)
+                .id(item.id)
         }
     }
 }

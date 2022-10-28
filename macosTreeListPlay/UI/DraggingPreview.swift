@@ -47,7 +47,7 @@ extension DraggingPreview {
             DisclosureGroup(
                 isExpanded: .constant(true),
                 content: {
-                    ForEach(item.children ?? [], id: \.uuid) { item in
+                    ForEach(item.children ?? [], id: \.id) { item in
                         FolderPreview(item: item)
                     }
                 },
