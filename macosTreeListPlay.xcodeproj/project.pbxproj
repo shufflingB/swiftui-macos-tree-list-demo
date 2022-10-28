@@ -10,14 +10,12 @@
 		FF1C1C7B2747C93800DE55F4 /* macosTreeListPlayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1C1C7A2747C93800DE55F4 /* macosTreeListPlayApp.swift */; };
 		FF1C1C7F2747C93A00DE55F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF1C1C7E2747C93A00DE55F4 /* Assets.xcassets */; };
 		FF1C1C822747C93A00DE55F4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF1C1C812747C93A00DE55F4 /* Preview Assets.xcassets */; };
-		FF2AED362906E69200D0B4CF /* FolderRow+DropDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2AED352906E69200D0B4CF /* FolderRow+DropDelegate.swift */; };
-		FF3999B92905646600417F05 /* DraggingPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF3999B82905646600417F05 /* DraggingPreview.swift */; };
 		FF4244A029006279003F7C95 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF42449E29006279003F7C95 /* AppModel.swift */; };
 		FF4244A3290062F2003F7C95 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4244A2290062F1003F7C95 /* Item.swift */; };
-		FF4244A929006381003F7C95 /* DefaultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4244A529006381003F7C95 /* DefaultRow.swift */; };
 		FF4244AA29006381003F7C95 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4244A629006381003F7C95 /* ContentView.swift */; };
-		FF4244AB29006381003F7C95 /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4244A729006381003F7C95 /* Tree.swift */; };
-		FF4244AC29006381003F7C95 /* FolderRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4244A829006381003F7C95 /* FolderRow.swift */; };
+		FF5E91372909A0DC0095AB68 /* AutoExpandingDisclosureGroupStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5E91362909A0DC0095AB68 /* AutoExpandingDisclosureGroupStyle.swift */; };
+		FF5E913A2909B6090095AB68 /* Row.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5E91392909B6090095AB68 /* Row.swift */; };
+		FF5E913D290A8F230095AB68 /* Introspect in Frameworks */ = {isa = PBXBuildFile; productRef = FF5E913C290A8F230095AB68 /* Introspect */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,14 +27,11 @@
 		FF1C1C832747C93A00DE55F4 /* macosTreeListPlay.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macosTreeListPlay.entitlements; sourceTree = "<group>"; };
 		FF28B24D2768F80E00A137F9 /* appScreenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appScreenshot.png; sourceTree = "<group>"; };
 		FF28B24E276979D500A137F9 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		FF2AED352906E69200D0B4CF /* FolderRow+DropDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FolderRow+DropDelegate.swift"; sourceTree = "<group>"; };
-		FF3999B82905646600417F05 /* DraggingPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraggingPreview.swift; sourceTree = "<group>"; };
 		FF42449E29006279003F7C95 /* AppModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		FF4244A2290062F1003F7C95 /* Item.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
-		FF4244A529006381003F7C95 /* DefaultRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultRow.swift; sourceTree = "<group>"; };
 		FF4244A629006381003F7C95 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		FF4244A729006381003F7C95 /* Tree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
-		FF4244A829006381003F7C95 /* FolderRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FolderRow.swift; sourceTree = "<group>"; };
+		FF5E91362909A0DC0095AB68 /* AutoExpandingDisclosureGroupStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoExpandingDisclosureGroupStyle.swift; sourceTree = "<group>"; };
+		FF5E91392909B6090095AB68 /* Row.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Row.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF5E913D290A8F230095AB68 /* Introspect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,11 +90,8 @@
 			isa = PBXGroup;
 			children = (
 				FF4244A629006381003F7C95 /* ContentView.swift */,
-				FF4244A729006381003F7C95 /* Tree.swift */,
-				FF4244A529006381003F7C95 /* DefaultRow.swift */,
-				FF4244A829006381003F7C95 /* FolderRow.swift */,
-				FF2AED352906E69200D0B4CF /* FolderRow+DropDelegate.swift */,
-				FF3999B82905646600417F05 /* DraggingPreview.swift */,
+				FF5E91362909A0DC0095AB68 /* AutoExpandingDisclosureGroupStyle.swift */,
+				FF5E91392909B6090095AB68 /* Row.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -128,6 +121,9 @@
 			dependencies = (
 			);
 			name = macosTreeListPlay;
+			packageProductDependencies = (
+				FF5E913C290A8F230095AB68 /* Introspect */,
+			);
 			productName = macosTreeListPlay;
 			productReference = FF1C1C772747C93800DE55F4 /* macosTreeListPlay.app */;
 			productType = "com.apple.product-type.application";
@@ -156,6 +152,9 @@
 				Base,
 			);
 			mainGroup = FF1C1C6E2747C93800DE55F4;
+			packageReferences = (
+				FF5E913B290A8F230095AB68 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
+			);
 			productRefGroup = FF1C1C782747C93800DE55F4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -182,14 +181,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FF4244A929006381003F7C95 /* DefaultRow.swift in Sources */,
-				FF3999B92905646600417F05 /* DraggingPreview.swift in Sources */,
 				FF4244A3290062F2003F7C95 /* Item.swift in Sources */,
-				FF2AED362906E69200D0B4CF /* FolderRow+DropDelegate.swift in Sources */,
 				FF4244AA29006381003F7C95 /* ContentView.swift in Sources */,
 				FF4244A029006279003F7C95 /* AppModel.swift in Sources */,
-				FF4244AB29006381003F7C95 /* Tree.swift in Sources */,
-				FF4244AC29006381003F7C95 /* FolderRow.swift in Sources */,
+				FF5E91372909A0DC0095AB68 /* AutoExpandingDisclosureGroupStyle.swift in Sources */,
+				FF5E913A2909B6090095AB68 /* Row.swift in Sources */,
 				FF1C1C7B2747C93800DE55F4 /* macosTreeListPlayApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -339,8 +335,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = self.macosTreeListPlay;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
@@ -369,8 +369,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = self.macosTreeListPlay;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};
@@ -396,6 +400,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FF5E913B290A8F230095AB68 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FF5E913C290A8F230095AB68 /* Introspect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FF5E913B290A8F230095AB68 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
+			productName = Introspect;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FF1C1C6F2747C93800DE55F4 /* Project object */;
 }

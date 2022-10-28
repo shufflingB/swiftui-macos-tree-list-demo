@@ -9,10 +9,11 @@ import Foundation
 
 class Item: ObservableObject, Identifiable, Equatable {
     static func == (lhs: Item, rhs: Item) -> Bool {
-        lhs.uuid == rhs.uuid
+        lhs.id == rhs.id
     }
 
-    var uuid: UUID = UUID()
+//    var uuid: UUID = UUID()
+    let id: UUID
     let isFolder: Bool
     let name: String
 
@@ -21,6 +22,7 @@ class Item: ObservableObject, Identifiable, Equatable {
     @Published var read: Bool
 
     init(_ name: String, isFolder: Bool = false, children: [Item]? = nil, read: Bool = false) {
+        self.id = UUID()
         self.name = name
         self.isFolder = isFolder
         self.children = children
@@ -29,11 +31,12 @@ class Item: ObservableObject, Identifiable, Equatable {
         self.children?.forEach({ item in
             item.parent = self
         })
+        
     }
 
     func adopt(child childItem: Item) {
         // Prevent accidentally adopting self
-        guard self.uuid != childItem.uuid else {
+        guard self.id != childItem.id else {
             return
         }
         
@@ -53,15 +56,15 @@ class Item: ObservableObject, Identifiable, Equatable {
         childItem.parent = self
     }
 
-    static func findDescendant(with uuid: UUID?, inTreesWithRoots items: [Item]) -> Item? {
-        guard let uuid = uuid else { return nil }
+    static func findDescendant(with id: UUID?, inTreesWithRoots items: [Item]) -> Item? {
+        guard let id = id else { return nil }
 
         return items.reduce(nil) { previouslyFoundItem, item in
 
             // Only find the first value & then don't repeat (& accidentally overwrite)
             guard previouslyFoundItem == nil else { return previouslyFoundItem }
 
-            if item.uuid == uuid {
+            if item.id == id {
                 return item
             }
 
@@ -69,7 +72,7 @@ class Item: ObservableObject, Identifiable, Equatable {
                 return nil
             }
 
-            return findDescendant(with: uuid, inTreesWithRoots: children)
+            return findDescendant(with: id, inTreesWithRoots: children)
         }
     }
 
@@ -88,7 +91,7 @@ class Item: ObservableObject, Identifiable, Equatable {
             return false
         }
 
-        if findDescendant(with: item.uuid, inTreesWithRoots: parentChildren) == nil {
+        if findDescendant(with: item.id, inTreesWithRoots: parentChildren) == nil {
             return false
         } else {
             return true

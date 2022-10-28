@@ -9,7 +9,7 @@ import SwiftUI
 
 class AppModel: ObservableObject {
     init(items: [Item]) {
-        self.itemsAtTopLevel = items
+        itemsAtTopLevel = items
     }
 
     @Published var itemsAtTopLevel: [Item]
@@ -37,7 +37,7 @@ class AppModel: ObservableObject {
 
     func itemIdsToMove(dragItemId: UUID, selectionIds: Selection) -> Array<UUID> {
         let asArray = itemsToMove(dragItemId: dragItemId, selectionIds: selectionIds)
-            .map({ $0.uuid })
+            .map({ $0.id })
         return asArray
     }
 
@@ -66,17 +66,16 @@ class AppModel: ObservableObject {
     }
 
     func itemsToMoveIsValid(for possibleMovers: Array<UUID>, into tgtFolder: Item) -> Bool {
-        
         for i in possibleMovers.indices {
             // Invalid to move to self to self
-            if possibleMovers[i] == tgtFolder.uuid {
-                //print("Invalid move: attempting move an item into its self")
+            if possibleMovers[i] == tgtFolder.id {
+                // print("Invalid move: attempting move an item into its self")
                 return false
             }
 
             // Invalid to move root folders
             if itemFindInTrees(uuid: possibleMovers[i])?.parent == nil {
-                //print("Invalid move: attempting to move a root item, i.e. one that has no parents")
+                // print("Invalid move: attempting to move a root item, i.e. one that has no parents")
                 return false
             }
         }
@@ -93,7 +92,7 @@ class AppModel: ObservableObject {
 
         // Remove any items that already have this folder as their parent.
         let notExistingChild = possibleMoversExtant.filter({
-            if let parentId = $0.parent?.uuid, parentId == tgtFolder.uuid {
+            if let parentId = $0.parent?.id, parentId == tgtFolder.id {
                 return false
             } else {
                 return true

@@ -1,3 +1,42 @@
+## Failed Experiment
+
+The code is so close to working really nice, ultimately though, I cant't make it work.
+
+Idea with this branch was to use the built in `OutLineGroup` with a custom `DisclosureGroupStyle`(`AutoExpandingDisclosureGroupStyle`) to enable folder in sub-tree structure to 
+autoexpand and collapse when carrying out drag and drop operations.
+
+Got working 
+ - auto-expanding and collapsing (bit rough - didn't put the delay timers in)
+ - `onDrop` on folder (used a `PreferenceKey` (`RowPrefDataKey`) to communicate the identity of the rows on which
+ the drop was happening to to the `onDrop` handler in `AutoExpandingDisclosureGroupStyle`
+ )  
+ 
+ Unable to make work (in `AutoExpandingDisclosureGroupStyle`)
+ - `onInsert`
+ 
+ Problem with it is the `onInsert` requires `AutoExpandingDisclosureGroupStyle#makeBody(configuration: Configuation)` `Configuration.Content` to have adopted `DynamicViewContent` in order for compilation to work. 
+ 
+ I think it likely has, bc Apple's code when not using a custom style appears to be able to insert without problems. 
+ 
+ The problem is I've been unable to either persuade: 
+ 
+ 1) `Configuration.Content` to adopt the `DynamicViewContent` protocol.
+ 
+ Or 
+ 
+ 2) To runtime refine the `Content` to the point where the compiler is happy that it might have `DynamicViewContent` 
+ compatibility.  
+
+
+
+
+
+
+
+
+
+
+
 ##  Intro
 
 This is a second experiment at creating a viable Drag and Drop (D&D) editable, tree like list view using 100% current SwiftUI components on macOS.
