@@ -44,7 +44,7 @@ class Item: ObservableObject, Identifiable, Equatable {
             let remainingKids = childsOriginalParentKids.filter({ $0 != adopteeItem })
 
             if remainingKids.count == 0 {
-                childsOriginalParent.children = nil
+                childsOriginalParent.children = []
             } else {
                 childsOriginalParent.children = remainingKids
             }

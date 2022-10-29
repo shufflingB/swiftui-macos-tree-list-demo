@@ -42,7 +42,7 @@ struct Node: View {
 //            }
 //        }
         .onReceive(parent.children.publisher, perform: { newArray in
-            print("Parent \(parent.name), got a kids update")
+            print("Parent \(parent.name), got a kids update of \(newArray.map({$0.name}))")
 //            DispatchQueue.main.async {
                 withAnimation {
                     children = newArray
