@@ -12,10 +12,18 @@ class AppModel: ObservableObject {
 
     init(items: [Item]) {
         itemsAtTopLevel = items
+        bootstrapRoot = Item("__BOOTSTRAP_ROOT_ITEM")
+        items.forEach { item in
+            bootstrapRoot.adopt(child: item)
+        }
+        
     }
 
+    
     @Published var itemsAtTopLevel: [Item]
     @Published var isDragging: Bool = false
+    @Published var bootstrapRoot: Item
+    
 
     func providerEncode(id: Item.Id) -> NSItemProvider {
         NSItemProvider(object: id.uuidString as NSString)
@@ -39,7 +47,7 @@ class AppModel: ObservableObject {
   
 
     func itemFindInTrees(id: Item.Id) -> Item? {
-        Item.findDescendant(with: id, inTreesWithRoots: itemsAtTopLevel)
+        Item.findDescendant(with: id, inTreesWithRoots: [bootstrapRoot])
     }
 
     func itemsFind(ids: Set<Item.Id>) -> Array<Item> {

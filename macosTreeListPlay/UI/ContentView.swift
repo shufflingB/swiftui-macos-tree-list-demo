@@ -14,7 +14,7 @@ struct ContentView: View {
     #endif
 
     // Have to have an item to bootstrap the display of the tree as @StateObject var someThing? is not allowed.
-    @StateObject var bootstrapRoot = Item("__BootstrapRootItem__")
+
     var body: some View {
         VStack {
             #if os(iOS)
@@ -31,13 +31,9 @@ struct ContentView: View {
             #else
                 Text("Use drag and drop to rearrange items in tree")
             #endif
-            Button("Add item test item to Trash") {
-                let dummy = Item("Dummy item created at \(Date())")
-                topLevelTrash.adopt(child: dummy)
-            }
 
             List(selection: $selectionIds) {
-                Node(parent: bootstrapRoot, children: appModel.itemsAtTopLevel)
+                Node(parent: appModel.bootstrapRoot)
             }
             .listStyle(.sidebar)
         }
@@ -46,7 +42,7 @@ struct ContentView: View {
             VStack {
                 Text("Drop target tree")
                 List {
-                    Node(parent: bootstrapRoot, children: appModel.itemsAtTopLevel)
+                    Node(parent: appModel.bootstrapRoot)
                 }
             }
         #endif

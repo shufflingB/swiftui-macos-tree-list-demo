@@ -36,6 +36,7 @@ class Item: ObservableObject, Identifiable, Equatable {
     func adopt(child adopteeItem: Item) {
         // Prevent accidentally adopting self
         guard id != adopteeItem.id else {
+            print("Rejecting adoption, \(adopteeItem.name) tried to adopt self ")
             return
         }
 
@@ -48,18 +49,11 @@ class Item: ObservableObject, Identifiable, Equatable {
             } else {
                 childsOriginalParent.children = remainingKids
             }
-            // childsOriginalParent.objectWillChange.send()
         }
         
         // Add the item to the adopter's list of kids and update  the adoptee
         children = (children ?? []) + [adopteeItem]
         adopteeItem.parent = self
-        
-//        
-//
-//        
-//        adopteeItem.objectWillChange.send()
-//        objectWillChange.send()
     }
 
     static func findDescendant(with id: Id?, inTreesWithRoots items: [Item]) -> Item? {
