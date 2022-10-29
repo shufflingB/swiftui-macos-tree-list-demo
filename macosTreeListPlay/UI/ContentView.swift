@@ -13,6 +13,7 @@ struct ContentView: View {
         @Environment(\.editMode) var editMode: Binding<EditMode>?
     #endif
 
+    // Have to have an item to bootstrap the display of the tree as @StateObject var someThing? is not allowed.
     @StateObject var bootstrapRoot = Item("__BootstrapRootItem__")
     var body: some View {
         VStack {
@@ -36,7 +37,7 @@ struct ContentView: View {
             }
 
             List(selection: $selectionIds) {
-                Node(parent: bootstrapRoot, items: appModel.itemsAtTopLevel)
+                Node(parent: bootstrapRoot, children: appModel.itemsAtTopLevel)
             }
             .listStyle(.sidebar)
         }
@@ -45,7 +46,7 @@ struct ContentView: View {
             VStack {
                 Text("Drop target tree")
                 List {
-                    Node(parent: bootstrapRoot, items: appModel.itemsAtTopLevel)
+                    Node(parent: bootstrapRoot, children: appModel.itemsAtTopLevel)
                 }
             }
         #endif

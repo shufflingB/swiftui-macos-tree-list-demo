@@ -16,27 +16,41 @@ import SwiftUI
 struct Parent: View {
     @EnvironmentObject var appModel: AppModel
     @ObservedObject var item: Item
+
     var body: some View {
         DisclosureGroup(isExpanded: $isExpanded) {
-            Node(parent: item, items: item.children ?? [])
+            Node(parent: item, children: item.children ?? [])
         } label: {
-            if item.parent == nil {
-                Label(item.name, systemImage: "folder.badge.questionmark")
-                    .onDrop(of: [.text], isTargeted: nil) { providers in
-                        providers.forEach { p in
-                            _ = p.loadObject(ofClass: String.self) { text, _ in
-                                appModel.providerDecode(loadedString: text)
-                                    .forEach { itemDropped in
-                                        DispatchQueue.main.async {
-                                            print("New parent = \(item.name) adopting \(itemDropped.name)")
-                                            item.adopt(child: itemDropped)
-                                        }
+            Row(item: item)
+                .onDrop(of: [.text], isTargeted: $isTargeted) { providers in
+                    providers.forEach { p in
+                        _ = p.loadObject(ofClass: String.self) { text, _ in
+                            appModel.providerDecode(loadedString: text)
+                                .forEach { itemDropped in
+                                    DispatchQueue.main.async {
+                                        print("On drop parent = \(item.name) adopting \(itemDropped.name)")
+                                        item.adopt(child: itemDropped)
                                     }
-                            }
+                                }
                         }
-                        return true
                     }
+                    return true
+                }
+        }
+    }
 
+    @State internal var isTargeted: Bool = false
+    @State private var isExpanded: Bool = false
+}
+
+extension Parent {
+    struct Row: View {
+        @EnvironmentObject var appModel: AppModel
+        @ObservedObject var item: Item
+
+        var body: some View {
+            if item.parent == nil { // Has no parent
+                Label(item.name, systemImage: "folder.badge.questionmark")
             } else {
                 Label(item.name, systemImage: "folder")
                     .onDrag {
@@ -45,7 +59,4 @@ struct Parent: View {
             }
         }
     }
-
-    @State private var isTargeted: Bool = false
-    @State private var isExpanded: Bool = false
 }

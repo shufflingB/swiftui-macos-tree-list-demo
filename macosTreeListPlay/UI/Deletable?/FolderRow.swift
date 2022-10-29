@@ -43,7 +43,7 @@ struct FolderRow: View {
                 }
                 .id(folderItem.id)
 
-                .onDrop(of: [.text], delegate: self)
+//                .onDrop(of: [.text], delegate: self)
                 .onDrag({
                     /// To make dragging work we have to return and NSItemProvider. However, what's actually being dragged is not actually being communicated via the
                     /// that mechanism. Instead it is done through setting the`draggingIds` variable.

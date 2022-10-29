@@ -7,10 +7,9 @@
 
 import Foundation
 
-
 class Item: ObservableObject, Identifiable, Equatable {
     typealias Id = UUID
-    
+
     static func == (lhs: Item, rhs: Item) -> Bool {
         lhs.id == rhs.id
     }
@@ -34,30 +33,33 @@ class Item: ObservableObject, Identifiable, Equatable {
         })
     }
 
-    func adopt(child childItem: Item) {
+    func adopt(child adopteeItem: Item) {
         // Prevent accidentally adopting self
-        guard self.id != childItem.id else {
+        guard id != adopteeItem.id else {
             return
         }
-        
-        
+
         // If child has existing parent then remove it
-        if let childsOriginalParent = childItem.parent {
-            if let remainingKids = childsOriginalParent.children?.filter({ $0 != childItem }) {
-                if remainingKids.count == 0 {
-                    childsOriginalParent.children = nil
-                } else {
-                    childsOriginalParent.children = remainingKids
-                }
-                childsOriginalParent.objectWillChange.send()
+        if let childsOriginalParent = adopteeItem.parent, let childsOriginalParentKids = childsOriginalParent.children {
+            let remainingKids = childsOriginalParentKids.filter({ $0 != adopteeItem })
+
+            if remainingKids.count == 0 {
+                childsOriginalParent.children = nil
+            } else {
+                childsOriginalParent.children = remainingKids
             }
+            // childsOriginalParent.objectWillChange.send()
         }
-        children = (children ?? []) + [childItem]
         
-        childItem.parent = self
-        childItem.objectWillChange.send()
-        self.objectWillChange.send()
+        // Add the item to the adopter's list of kids and update  the adoptee
+        children = (children ?? []) + [adopteeItem]
+        adopteeItem.parent = self
         
+//        
+//
+//        
+//        adopteeItem.objectWillChange.send()
+//        objectWillChange.send()
     }
 
     static func findDescendant(with id: Id?, inTreesWithRoots items: [Item]) -> Item? {

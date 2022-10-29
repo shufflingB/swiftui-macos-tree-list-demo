@@ -59,6 +59,7 @@ struct macosTreeListPlayApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(model)
+//                .toolbarRole(.editor)
         }
     }
 }
