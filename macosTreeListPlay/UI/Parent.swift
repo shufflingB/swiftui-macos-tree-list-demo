@@ -32,10 +32,7 @@ struct Parent: View {
                 }
             }
             .onDrop(of: [.text], delegate: self)
-            
-
         }
-        
     }
 
     @State internal var isTargeted: Bool = false

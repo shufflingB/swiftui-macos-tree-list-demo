@@ -13,15 +13,16 @@ struct Node: View {
 
     var body: some View {
         ForEach(parent.children ?? []) { (childItem: Item) in
+            Group {
+                if childItem.isFolder == false {
+                    Label(childItem.name, systemImage: "doc.text")
+                        .onDrag {
+                            appModel.providerEncode(id: childItem.id)
+                        }
 
-            if childItem.isFolder == false {
-                Label(childItem.name, systemImage: "doc.text")
-                    .onDrag {
-                        appModel.providerEncode(id: childItem.id)
-                    }
-
-            } else {
-                Parent(item: childItem)
+                } else {
+                    Parent(item: childItem)
+                }
             }
         }
 
