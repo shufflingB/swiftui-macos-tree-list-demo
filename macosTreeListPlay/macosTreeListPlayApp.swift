@@ -7,28 +7,48 @@
 
 import SwiftUI
 
-let TestData = [
-    Item("Inbox", isFolder: true,
-         children: [Item("Friends", isFolder: true,
-                         children: [
-                             Item("FBook", isFolder: true,
-                                  children: [
-                                      Item("Mostly harmless"),
-                                      Item("Re: Mostly harmless"),
-                                  ]),
+let topLevelTrash = Item(
+    "Trash", isFolder: true,
+    children: []
+)
 
-                             Item("Birthday party"),
-                             Item("Re: Birthday party")]),
-                    Item("Work", isFolder: true,
-                         children: [Item("Next meeting"),
-                                    Item("Team building")]),
-                    Item("Holidays!"),
-                    Item("Report needed")]),
-    Item("Spam", isFolder: true,
-         children: [Item("[SPAM] Open now!"),
-                    Item("[SPAM] Limited time offer")]),
-    Item("Trash", isFolder: true,
-         children: []),
+let topLevelSpam = Item(
+    "Spam", isFolder: true,
+    children: [
+        Item("[SPAM] Open now!"),
+        Item("[SPAM] Limited time offer"),
+    ]
+)
+
+let topLevelInbox = Item(
+    "Inbox", isFolder: true,
+    children: [
+        Item(
+            "Friends", isFolder: true,
+            children: [
+                Item("FBook", isFolder: true,
+                     children: [
+                         Item("Mostly harmless"),
+                         Item("Re: Mostly harmless"),
+                     ]
+                ),
+                Item("Birthday party"),
+                Item("Re: Birthday party")]),
+        Item("Work", isFolder: true,
+             children: [
+                 Item("Next meeting"),
+                 Item("Team building"),
+             ]
+        ),
+        Item("Holidays!"),
+        Item("Report needed"),
+    ]
+)
+
+let TestData = [
+    topLevelInbox,
+    topLevelSpam,
+    topLevelTrash,
 ]
 
 @main
