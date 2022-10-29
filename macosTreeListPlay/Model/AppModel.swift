@@ -8,25 +8,35 @@
 import SwiftUI
 
 class AppModel: ObservableObject {
-    
     typealias Selection = Set<Item.Id>
-    
+
     init(items: [Item]) {
-        self.itemsAtTopLevel = items
+        itemsAtTopLevel = items
     }
 
     @Published var itemsAtTopLevel: [Item]
     @Published var isDragging: Bool = false
 
-    var itemsUnreadCount: Int {
-        func unreadInFolder(_ array: [Item]) -> Int {
-            return array.reduce(0) { acc, value in
-                acc + (value.isFolder ? unreadInFolder(value.children ?? []) : (value.read ? 0 : 1))
-            }
+    func providerEncode(id: Item.Id) -> NSItemProvider {
+        NSItemProvider(object: id.uuidString as NSString)
+    }
+    
+    func providerDecode(loadedString: String?) -> Array<Item> {
+        guard let possibleStringOfConcatIds: String = loadedString as String? else {
+            return []
         }
 
-        return unreadInFolder(itemsAtTopLevel)
+        let decodedItems: Array<Item> = possibleStringOfConcatIds
+            .split(separator: ",")
+            .map { String($0) }
+            .compactMap({ UUID(uuidString: $0) })
+            .compactMap({ self.itemFindInTrees(id: $0)})
+        
+        return decodedItems
     }
+    
+    
+  
 
     func itemFindInTrees(id: Item.Id) -> Item? {
         Item.findDescendant(with: id, inTreesWithRoots: itemsAtTopLevel)
@@ -69,17 +79,16 @@ class AppModel: ObservableObject {
     }
 
     func itemsToMoveIsValid(for possibleMovers: Array<Item.Id>, into tgtFolder: Item) -> Bool {
-        
         for i in possibleMovers.indices {
             // Invalid to move to self to self
             if possibleMovers[i] == tgtFolder.id {
-                //print("Invalid move: attempting move an item into its self")
+                // print("Invalid move: attempting move an item into its self")
                 return false
             }
 
             // Invalid to move root folders
             if itemFindInTrees(id: possibleMovers[i])?.parent == nil {
-                //print("Invalid move: attempting to move a root item, i.e. one that has no parents")
+                // print("Invalid move: attempting to move a root item, i.e. one that has no parents")
                 return false
             }
         }

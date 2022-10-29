@@ -42,18 +42,22 @@ class Item: ObservableObject, Identifiable, Equatable {
         
         
         // If child has existing parent then remove it
-        if let childsExistingParent = childItem.parent {
-            if let remainingKids = childsExistingParent.children?.filter({ $0 != childItem }) {
+        if let childsOriginalParent = childItem.parent {
+            if let remainingKids = childsOriginalParent.children?.filter({ $0 != childItem }) {
                 if remainingKids.count == 0 {
-                    childsExistingParent.children = nil
+                    childsOriginalParent.children = nil
                 } else {
-                    childsExistingParent.children = remainingKids
+                    childsOriginalParent.children = remainingKids
                 }
-                childsExistingParent.objectWillChange.send()
+                childsOriginalParent.objectWillChange.send()
             }
         }
         children = (children ?? []) + [childItem]
+        
         childItem.parent = self
+        childItem.objectWillChange.send()
+        self.objectWillChange.send()
+        
     }
 
     static func findDescendant(with id: Id?, inTreesWithRoots items: [Item]) -> Item? {

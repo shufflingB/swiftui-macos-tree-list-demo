@@ -178,3 +178,4 @@ struct FolderRow: View {
 ///
 /// Decoding process is nearly identical when using a full fat `DropDelegate`, but setting `isDropTagt` type variables more a pita.
 ///
+
