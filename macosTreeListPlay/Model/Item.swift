@@ -34,9 +34,15 @@ class Item: ObservableObject, Identifiable, Equatable {
     }
 
     func adopt(child adopteeItem: Item) {
-        // Prevent accidentally adopting self
+        // Prevent accidentally adopting itself
         guard id != adopteeItem.id else {
-            print("Rejecting adoption, \(adopteeItem.name) tried to adopt self ")
+            print("Rejecting adoption, of \(adopteeItem.name) - tried to adopt self ")
+            return
+        }
+
+        // Prevent accidentally having a child adopt  one of its ancestors
+        guard isDescendant(of: adopteeItem) != true else {
+            print("Rejecting adoption, of \(adopteeItem.name) - tried to have one of its descendants adopt it")
             return
         }
 
@@ -50,7 +56,7 @@ class Item: ObservableObject, Identifiable, Equatable {
                 childsOriginalParent.children = remainingKids
             }
         }
-        
+
         // Add the item to the adopter's list of kids and update  the adoptee
         children = (children ?? []) + [adopteeItem]
         adopteeItem.parent = self
