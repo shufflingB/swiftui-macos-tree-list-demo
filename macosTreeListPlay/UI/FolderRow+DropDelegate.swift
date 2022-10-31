@@ -17,8 +17,10 @@ extension Parent: DropDelegate {
     }
 
     func validateDrop(info: DropInfo) -> Bool {
-        true
-//        return appModel.itemsToMoveIsValid(for: , into: item)
+        info.itemProviders(for: [.text]).count > 0 ? true : false
+        /// All we can do is check we've got an accepted type.
+        /// Cannot do any other validation here bc the decoding happens asynchronously and we therefore do not have the ability
+        /// to inspect the payload more thoroughly.
     }
 
     func performDrop(info: DropInfo) -> Bool {
