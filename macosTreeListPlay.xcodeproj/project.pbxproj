@@ -31,7 +31,6 @@
 		FF1C1C832747C93A00DE55F4 /* macosTreeListPlay.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macosTreeListPlay.entitlements; sourceTree = "<group>"; };
 		FF22E81C290D4FE600DE0913 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		FF22E81E290D503600DE0913 /* Parent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parent.swift; sourceTree = "<group>"; };
-		FF28B24D2768F80E00A137F9 /* appScreenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appScreenshot.png; sourceTree = "<group>"; };
 		FF28B24E276979D500A137F9 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		FF2AED352906E69200D0B4CF /* FolderRow+DropDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FolderRow+DropDelegate.swift"; sourceTree = "<group>"; };
 		FF3999B82905646600417F05 /* DraggingPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraggingPreview.swift; sourceTree = "<group>"; };
@@ -41,6 +40,8 @@
 		FF4244A629006381003F7C95 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		FF4244A729006381003F7C95 /* Tree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
 		FF4244A829006381003F7C95 /* FolderRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FolderRow.swift; sourceTree = "<group>"; };
+		FFD50E0E290FFA35000F84D0 /* appScreenRecording.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = appScreenRecording.gif; sourceTree = "<group>"; };
+		FFD50E102910481A000F84D0 /* appIpadDragSelectionWorks.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = appIpadDragSelectionWorks.gif; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,7 +59,8 @@
 			isa = PBXGroup;
 			children = (
 				FF0702DE27578F1D00E3DDF8 /* README.md */,
-				FF28B24D2768F80E00A137F9 /* appScreenshot.png */,
+				FFD50E0E290FFA35000F84D0 /* appScreenRecording.gif */,
+				FFD50E102910481A000F84D0 /* appIpadDragSelectionWorks.gif */,
 				FF28B24E276979D500A137F9 /* LICENSE */,
 				FF1C1C7E2747C93A00DE55F4 /* Assets.xcassets */,
 				FF1C1C792747C93800DE55F4 /* macosTreeListPlay */,

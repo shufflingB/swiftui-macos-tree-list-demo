@@ -33,6 +33,9 @@ struct Parent: View {
             }
             .onDrop(of: [.text], delegate: self)
         }
+        .onTapGesture() {
+            isExpanded.toggle()
+        }
     }
 
     @State internal var isTargeted: Bool = false
